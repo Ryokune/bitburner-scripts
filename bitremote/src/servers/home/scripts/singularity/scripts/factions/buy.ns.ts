@@ -16,8 +16,8 @@ export async function main(ns: NS) {
   let cost = Infinity;
 
   for (const aug of augs) {
-    if (aug === "NeuroFlux Governor") continue;
-    if (owned.includes(aug)) continue;
+    //if (aug === "NeuroFlux Governor") continue;
+    if (owned.includes(aug) && aug != "NeuroFlux Governor") continue;
     const repReq = ns.singularity.getAugmentationRepReq(aug);
     if (ns.singularity.getFactionRep(faction) < repReq) continue;
 
