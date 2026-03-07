@@ -1,5 +1,3 @@
-import type { FactionWorkTask } from "@ns"
-
 export async function main(ns: NS) {
   const player = ns.getPlayer()
   const factions = player.factions
@@ -23,8 +21,7 @@ export async function main(ns: NS) {
 
       // player faction rep doesnt go down (i think at least)
       // but money does. remove aug - player.money if this causes any weird issues.
-      const augmentation_rep = ns.singularity.getAugmentationRepReq(augmentation) -
-        ns.singularity.getFactionRep(faction)
+      const augmentation_rep = ns.singularity.getAugmentationRepReq(augmentation) - ns.singularity.getFactionRep(faction)
       const augmentation_cost = ns.singularity.getAugmentationPrice(augmentation) - player.money
 
       if (
@@ -37,7 +34,11 @@ export async function main(ns: NS) {
       }
     }
   }
-  if (!cheapest_faction) return
+  if (!cheapest_faction) {
+    // fallback to the faction with the most rep.
+    cheapest_faction = factions.sort((a, b) => ns.singularity.getFactionRep(a) - ns.singularity.getFactionRep(b)).pop()!
+    if (!cheapest_faction) return
+  }
 
   if (work?.type === "FACTION" && work.factionName === cheapest_faction) return
 
