@@ -1,0 +1,36 @@
+
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "esnext",
+    "moduleResolution": "nodenext",
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noEmitOnError": true,
+    "esModuleInterop": true,
+    "inlineSourceMap": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
+    "inlineSources": true,
+    "allowUmdGlobalAccess": true,
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "strict": true,
+    "rootDir": "src/",
+    "outDir": "dist/",
+    "baseUrl": "src/",
+    "allowJs": true,
+    "jsx": "react",
+    "paths": {
+      "@ns": ["../NetscriptDefinitions.d.ts"],
+      "@home/*": ["servers/home/*"],
+      "@servers/*": ["servers/*"],
+      "@/*": ["*"]
+    }
+  }
+}
+
