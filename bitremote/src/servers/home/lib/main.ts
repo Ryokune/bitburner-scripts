@@ -121,7 +121,7 @@ export function calculateFitness(ns: NS, HOST: string) {
     (((TARGETS_MONEY_FITNESS * 2) + TARGETS_SECURITY_FITNESS) / 3)
     * (growth / ((maxMoney - AVAIL_MONEY) / maxMoney))
     * hackChance
-    * (1 / minSec)
+    * (minSec)
   )
     / ((ns.getGrowTime(HOST) + ns.getHackTime(HOST) + ns.getWeakenTime(HOST)) / 3)
 
