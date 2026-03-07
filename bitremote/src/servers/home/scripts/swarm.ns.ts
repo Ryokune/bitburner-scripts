@@ -47,6 +47,8 @@ export async function main(ns: NS) {
     const HOSTS = getHosts(ns, h => h != "home" && h != "pserv" && ns.hasRootAccess(h)).sort((a, b) => getAvailableRam(b) - (getAvailableRam(a)))
     const DATA = []
     for (const HOST of HOSTS) {
+      const fitness = calculateFitness(ns, HOST)
+      if (fitness == -1) continue
       if (!H.has(HOST)) {
         H.set(HOST, {
           hack: 0,
@@ -54,9 +56,6 @@ export async function main(ns: NS) {
           weaken: 0,
         })
       }
-
-      const fitness = calculateFitness(ns, HOST)
-      if (fitness == -1) continue
       DATA.push({ host: HOST, fitness: fitness })
     }
     const SORTED_DATA = DATA.sort((a, b) => b.fitness - a.fitness)
