@@ -19,10 +19,18 @@ const SCRIPTS = [
 //
 // TODO: Create UI for this.
 export async function main(ns: NS) {
+  // Clear any excess data in the HACK/GROW/WEAKEN ports.
+  // I should create a port lib soon for more flexibility.
+  ns.clearPort(1);
+  ns.clearPort(2)
+  ns.clearPort(3);
+
   ns.disableLog("ALL")
   ns.ramOverride(7.75)
   ns.ui.openTail()
-  ns.atExit(() => ns.ui.closeTail())
+  ns.atExit(() => {
+    ns.ui.closeTail()
+  })
   const H = new Map<string, Server>()
   function getAvailableRam(host: string) {
     return ns.getServerMaxRam(host) - ns.getServerUsedRam(host)
