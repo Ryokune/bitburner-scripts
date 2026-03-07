@@ -1,7 +1,8 @@
 import { hasAllPrograms } from "@home/lib/main";
 
 export async function main(ns: NS) {
-  if (!hasAllPrograms(ns)) return;
+  // Might be a bad metric to not buy augments. Especially at the start of a new bitnode.
+  // if (!hasAllPrograms(ns)) return;
 
   const currentWork = ns.singularity.getCurrentWork();
   if (currentWork?.type !== "FACTION") return;
@@ -17,7 +18,6 @@ export async function main(ns: NS) {
   for (const aug of augs) {
     if (aug === "NeuroFlux Governor") continue;
     if (owned.includes(aug)) continue;
-
     const repReq = ns.singularity.getAugmentationRepReq(aug);
     if (ns.singularity.getFactionRep(faction) < repReq) continue;
 
