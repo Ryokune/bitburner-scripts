@@ -5,7 +5,7 @@ export async function main(ns: NS) {
   const size = servers.length
   if (size === 25) return;
   let maxed = 0;
-  if (!hasAllPrograms(ns) && servers.length >= 3) return
+  if (!hasAllPrograms(ns) && servers.length >= 5) return
   while (true) {
     const server = servers.pop()
     if (!server) break;
@@ -16,8 +16,11 @@ export async function main(ns: NS) {
       continue;
     }
     const target_ram = Math.pow(2, pow + 1)
-    if (ns.upgradePurchasedServer(server, target_ram))
-      ns.toast(`Upgraded server: ${server} from ${current_ram} to ${target_ram}`)
+    if (ns.upgradePurchasedServer(server, target_ram)) {
+      const success_string = `Upgraded server: ${server} from ${current_ram} to ${target_ram}`
+      ns.toast(success_string)
+      ns.tprint(success_string)
+    }
     else
       ns.toast(`Can not upgrade server ${server}. Needs ${ns.formatNumber(ns.getPurchasedServerCost(target_ram))}`, "error", 5000)
 
@@ -32,5 +35,6 @@ export async function main(ns: NS) {
     }
 
     ns.toast(`Purchased server: ${name}`)
+    ns.tprint(`Purchased server: ${name}`)
   }
 }

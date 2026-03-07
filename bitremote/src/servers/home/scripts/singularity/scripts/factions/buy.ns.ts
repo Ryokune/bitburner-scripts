@@ -32,7 +32,9 @@ export async function main(ns: NS) {
   if (!cheapest) return;
 
   if (ns.singularity.purchaseAugmentation(faction, cheapest)) {
-    ns.toast(`Bought ${cheapest} from ${faction} for ${ns.formatNumber(cost)}`);
+    const success_string = `Bought ${cheapest} from ${faction} for ${ns.formatNumber(cost)}`
+    ns.toast(success_string);
+    ns.tprint(success_string)
   } else {
     const money = ns.getServerMoneyAvailable("home");
     ns.toast(

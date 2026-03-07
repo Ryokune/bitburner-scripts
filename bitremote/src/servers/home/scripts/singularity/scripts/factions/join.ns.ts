@@ -15,7 +15,8 @@ export async function main(ns: NS) {
   }
   if (!best_faction) return
   if (ns.singularity.joinFaction(best_faction)) {
-    ns.toast(`Joining faction ${best_faction}`)
+    ns.toast(`Joined faction ${best_faction}`)
+    ns.tprint(`Joined faction ${best_faction}`)
   } else {
     ns.toast(`Failed to join faction ${best_faction}`, "error")
   }

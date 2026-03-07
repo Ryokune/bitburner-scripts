@@ -7,6 +7,7 @@ export async function main(ns: NS) {
     if (!ns.fileExists(program)) {
       if (ns.singularity.purchaseProgram(program)) {
         ns.toast(`Bought: ${program}`)
+        ns.tprint(`Bought: ${program}`)
       } else {
         ns.toast(`Could not buy: ${program}. Need ${ns.formatNumber(cost - ns.getServerMoneyAvailable("home"))} more`, "error")
       }

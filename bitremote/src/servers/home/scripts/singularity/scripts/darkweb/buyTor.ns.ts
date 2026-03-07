@@ -2,6 +2,7 @@ export async function main(ns: NS) {
   if (ns.hasTorRouter()) return;
   if (ns.singularity.purchaseTor()) {
     ns.toast("Bought TOR!")
+    ns.tprint("Bought TOR!")
   } else {
     ns.toast(`Couldn't buy TOR router. Need ${ns.formatNumber(200_000 - ns.getServerMoneyAvailable("home"))} more.`, "error")
   }
