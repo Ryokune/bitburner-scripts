@@ -1,8 +1,8 @@
+import { daemonGetPort } from "./lib/portdaemonlib"
+
 export async function main(ns: NS) {
-  while (true) {
-    const cmd = await ns.prompt("[repl]:", { type: "text" })
-    if (!cmd || cmd == "exit") break;
-  }
+  const portNum = await daemonGetPort(ns, "hello")
+  ns.tprint(portNum)
 }
 
 export function autocomplete(data: AutocompleteData, args: string[]): string[] {

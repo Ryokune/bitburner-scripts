@@ -1,5 +1,7 @@
 
 import { calculateFitness, getHosts } from "@home/lib/main"
+import { daemonGetPortHandle } from "@home/lib/portdaemonlib"
+import { NetscriptPort } from "@ns"
 
 interface Server {
   hack: number,
@@ -21,9 +23,18 @@ const SCRIPTS = [
 export async function main(ns: NS) {
   // Clear any excess data in the HACK/GROW/WEAKEN ports.
   // I should create a port lib soon for more flexibility.
-  ns.clearPort(1);
-  ns.clearPort(2)
-  ns.clearPort(3);
+  // ns.clearPort(1);
+  // ns.clearPort(2)
+  // ns.clearPort(3);
+  //
+  const hack_port = await daemonGetPortHandle(ns, "hack")
+  const weaken_port = await daemonGetPortHandle(ns, "weaken")
+  const grow_port = await daemonGetPortHandle(ns, "grow")
+
+  if (!hack_port || !weaken_port || !grow_port) {
+    ns.tprint(`COULD NOT INITIALIZE PORTS!`)
+    return
+  }
 
   ns.disableLog("ALL")
   ns.ramOverride(7.75)
@@ -43,11 +54,22 @@ export async function main(ns: NS) {
       }
     }
   }
+  function drainPortHandle(port: NetscriptPort, field: "hack" | "grow" | "weaken") {
+    while (port.peek() !== "NULL PORT DATA") {
+      const [target, threads] = JSON.parse(port.read() as string)
+      if (H.has(target)) {
+        H.get(target)![field] -= threads
+      }
+    }
+  }
   while (true) {
     ns.clearLog()
-    drainPort(1, "hack")
-    drainPort(2, "weaken")
-    drainPort(3, "grow")
+    drainPortHandle(hack_port, "hack")
+    drainPortHandle(weaken_port, "weaken")
+    drainPortHandle(grow_port, "grow")
+    // drainPort(1, "hack")
+    // drainPort(2, "weaken")
+    // drainPort(3, "grow")
 
     // totally readable yea
     Array.from(H).sort((a, b) => (a[1].grow + a[1].hack + a[1].weaken) - (b[1].grow + b[1].hack + b[1].weaken)).forEach((v) => ns.print(`${v[0]}: ${Object.entries(v[1])}`))
