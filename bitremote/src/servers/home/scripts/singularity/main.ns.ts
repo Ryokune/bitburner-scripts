@@ -56,7 +56,7 @@ async function start(ns: NS, looped = false) {
         ns.ui.openTail(PID)
         ns.ui.moveTail(
           (current_script.tailProperties.x ?? 0),
-          (current_script.tailProperties.y ?? 0) + current_script.tailProperties.height, PID)
+          (current_script.tailProperties.y ?? 0) + current_script.tailProperties.height + 10, PID)
         ns.ui.resizeTail(current_script.tailProperties.width, current_script.tailProperties.height, PID)
       }
     }
