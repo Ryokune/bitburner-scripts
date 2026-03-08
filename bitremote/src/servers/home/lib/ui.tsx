@@ -1,4 +1,4 @@
-import type { CSSProperties, FocusEventHandler, ReactNode } from "react";
+import type { FocusEventHandler, InputEvent, InputEventHandler, ReactNode } from "react";
 import type { ReactNode as NSReactNode } from "@ns";
 
 export function interpolateColor(c1: string, c2: string, t: number) {
@@ -9,17 +9,20 @@ export function interpolateColor(c1: string, c2: string, t: number) {
 }
 
 export async function runOnTerminal(command: string) {
-  const documentRef = document;
-  const terminalInputEl = documentRef.getElementById("terminal-input");
+  const terminalInputEl = document.getElementById("terminal-input") as HTMLInputElement | null;
+  if (!terminalInputEl) return;
 
-  const terminalEventHandlerKey = Object.keys(terminalInputEl)[1];
+  const terminalEventHandlerKey = Object.keys(terminalInputEl)[1]
+  const inputHandler = (terminalInputEl as unknown as Record<
+    string,
+    React.DOMAttributes<HTMLInputElement>>)[terminalEventHandlerKey] as React.DOMAttributes<HTMLInputElement>;
   terminalInputEl.value = command;
-  terminalInputEl[terminalEventHandlerKey].onChange({ target: terminalInputEl });
+  inputHandler.onChange?.({ target: terminalInputEl } as React.ChangeEvent<HTMLInputElement>);
   terminalInputEl.focus();
-  await terminalInputEl[terminalEventHandlerKey].onKeyDown({
+  inputHandler.onKeyDown?.({
     key: "Enter",
     preventDefault: () => 0,
-  });
+  } as unknown as React.KeyboardEvent<HTMLInputElement>);
 }
 
 interface CustomInputProps extends React.InputHTMLAttributes<HTMLInputElement> { }
