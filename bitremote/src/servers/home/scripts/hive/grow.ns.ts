@@ -5,7 +5,7 @@ export async function main(ns: NS) {
   await ns.grow(TARGET)
 
   const grow_port = ns.getPortHandle(PORTS.GROW_PORT)
-  while (!grow_port?.tryWrite(JSON.stringify([TARGET, ns.args[1]]))) {
+  while (!grow_port?.tryWrite([TARGET, ns.args[1]])) {
     await ns.sleep(100)
   }
 }

@@ -38,7 +38,7 @@ export async function main(ns: NS) {
   }
   function drainPortHandle(port: NetscriptPort, field: "hack" | "grow" | "weaken") {
     while (port.peek() !== "NULL PORT DATA") {
-      const [target, threads] = JSON.parse(port.read() as string)
+      const [target, threads] = port.read()
       if (H.has(target)) {
         H.get(target)![field] -= threads
       }

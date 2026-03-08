@@ -6,7 +6,7 @@ export async function main(ns: NS) {
   await ns.hack(TARGET)
 
   const hack_port = ns.getPortHandle(PORTS.HACK_PORT)
-  while (!hack_port?.tryWrite(JSON.stringify([TARGET, ns.args[1]]))) {
+  while (!hack_port?.tryWrite([TARGET, ns.args[1]])) {
     await ns.sleep(100)
   }
 }

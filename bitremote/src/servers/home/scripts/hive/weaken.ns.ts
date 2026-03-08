@@ -6,7 +6,7 @@ export async function main(ns: NS) {
   await ns.weaken(TARGET)
 
   const weaken_port = ns.getPortHandle(PORTS.WEAKEN_PORT)
-  while (!weaken_port?.tryWrite(JSON.stringify([TARGET, ns.args[1]]))) {
+  while (!weaken_port?.tryWrite([TARGET, ns.args[1]])) {
     await ns.sleep(100)
   }
 }
