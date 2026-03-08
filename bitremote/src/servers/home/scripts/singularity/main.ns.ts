@@ -50,7 +50,6 @@ async function start(ns: NS, looped = false) {
     }
     ns.print(`Running ${script.split("/").slice(-2).join("/")} with PID ${PID}`)
     while (ns.isRunning(PID)) {
-      await ns.sleep(500)
       current_script = ns.getRunningScript()!
       if (current_script.tailProperties && ns.getScriptLogs(PID).length > 0) {
         ns.ui.openTail(PID)
@@ -59,6 +58,10 @@ async function start(ns: NS, looped = false) {
           (current_script.tailProperties.y ?? 0) + current_script.tailProperties.height + 10, PID)
         ns.ui.resizeTail(current_script.tailProperties.width, current_script.tailProperties.height, PID)
       }
+      if (!current_script.tailProperties)
+        await ns.sleep(500)
+      else
+        await ns.sleep(0)
     }
     ns.ui.closeTail(PID)
   }
