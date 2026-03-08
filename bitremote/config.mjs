@@ -5,37 +5,31 @@ import path from 'path'
 const bitburnerPathPlugin = {
   name: 'bitburner-path-remapper',
   setup(build) {
-    build.onResolve({ filter: /.*/ }, async (args) => {
-      if (args.pluginData?.bbskip) return null;
+    build.onResolve({ filter: /\.ns(\.(ts|tsx))?$/ }, async (args) => {
+      if (args.pluginData?.bb_path_resolve) return null;
+
       const result = await build.resolve(args.path, {
         resolveDir: args.resolveDir,
         kind: args.kind,
-        pluginData: { bbskip: true }
+        pluginData: { bb_path_resolve: true }
       });
 
       if (result.errors.length > 0) return { errors: result.errors };
-      if (result.path.endsWith('.ns.ts')) {
-        let relativePath = path.relative(args.resolveDir, result.path);
+      let relativePath = path.relative(args.resolveDir, result.path);
 
-        relativePath = relativePath.replace(/\.tsx?$/, '.js');
+      relativePath = relativePath.replace(/\.tsx?$/, '.js');
 
-        let finalPath = relativePath.split(path.sep).join('/');
-        if (!finalPath.startsWith('.')) {
-          finalPath = './' + finalPath;
-        }
-
-        console.log(`[REMAPPED] ${args.path} -> ${finalPath} (${args.importer})`);
-
-        return {
-          path: finalPath,
-          external: true
-        };
+      let finalPath = relativePath.split(path.sep).join('/');
+      if (!finalPath.startsWith('.')) {
+        finalPath = './' + finalPath;
       }
 
+      console.log(`[REMAPPED] ${args.path} -> ${finalPath} (${args.importer})`);
 
-      // 3. If it's a normal .ts file or anything else, return null 
-      // This tells esbuild: "Proceed with normal bundling"
-      return null;
+      return {
+        path: finalPath,
+        external: true
+      };
     });
   },
 };
