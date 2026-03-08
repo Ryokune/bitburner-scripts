@@ -3,8 +3,6 @@ import { App } from "./App"
 import { PortDaemonData } from "@home/daemons/portDaemon.ns"
 
 export async function main(ns: NS) {
-  // CreateWindow(ns, () => <App ns={ns} />, "PortViewer", 1200, 200, 0, 0)
-  // while (true) await ns.asleep(500)
   ns.ui.openTail()
   ns.disableLog('ALL')
   while (true) {
