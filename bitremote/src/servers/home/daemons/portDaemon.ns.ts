@@ -1,6 +1,16 @@
 import { PortDaemonRequest, PORTD_READ_PORT, PORTD_WRITE_PORT } from "@home/lib/portdaemonlib";
 import { deregisterPort, generatePortsData, getPortNumber, registerOrGetPortNumber, registerPort, type Ports } from "@home/lib/ports";
-import { run } from "node:test";
+
+// all of this complicated mess could be simplified with just....
+// a lib/ports.ts file that exports....
+// PORTS = {
+// HACK_PORT: 1
+// WEAKEN_PORT: 2
+// GROW_PORT: 3
+// ...
+// }
+//
+// but i went insane and went with doing this in 3 am. coolstuff
 
 export let PortDaemonData: Ports;
 

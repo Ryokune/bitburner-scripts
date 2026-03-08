@@ -1,6 +1,6 @@
 
 import { calculateFitness, getHosts } from "@home/lib/main"
-import { daemonDeletePort, daemonGetPortHandle, daemonRegisterPort } from "@home/lib/portdaemonlib"
+import { daemonDeletePort, daemonGetPortHandle, daemonRegisterPort, initunsafe } from "@home/lib/portdaemonlib"
 import { deregisterPort } from "@home/lib/ports"
 import { NetscriptPort } from "@ns"
 
@@ -27,7 +27,7 @@ export async function main(ns: NS) {
   // ns.clearPort(1);
   // ns.clearPort(2)
   // ns.clearPort(3);
-  //  
+  initunsafe()
   ns.disableLog("ALL")
   ns.ramOverride(7.75)
   ns.ui.openTail()
@@ -39,14 +39,6 @@ export async function main(ns: NS) {
   function getAvailableRam(host: string) {
     return ns.getServerMaxRam(host) - ns.getServerUsedRam(host)
   }
-  function drainPort(port: number, field: "hack" | "grow" | "weaken") {
-    while (ns.peek(port) !== "NULL PORT DATA") {
-      const [target, threads] = JSON.parse(ns.readPort(port) as string)
-      if (H.has(target)) {
-        H.get(target)![field] -= threads
-      }
-    }
-  }
   function drainPortHandle(port: NetscriptPort, field: "hack" | "grow" | "weaken") {
     while (port.peek() !== "NULL PORT DATA") {
       const [target, threads] = JSON.parse(port.read() as string)
@@ -57,7 +49,7 @@ export async function main(ns: NS) {
   }
 
   await daemonRegisterPort(ns, "hack")
-  ns.print('h')
+  ns.print('h.')
   await daemonRegisterPort(ns, "grow")
   ns.print('g')
   await daemonRegisterPort(ns, "weaken")
@@ -109,6 +101,7 @@ export async function main(ns: NS) {
       let should_overflow = false
       let script = ""
       let targetThreads = 0
+      let port = 0;
       const state = H.get(target)!
 
       const predicted_security = CURRENT_SECURITY - (state.weaken * 0.05)
@@ -126,7 +119,8 @@ export async function main(ns: NS) {
       )
       if (predicted_security > LOWEST_SECURITY && state.weaken != needed_security) {
         script = SCRIPTS[1]
-        targetThreads = needed_security
+        port =
+          targetThreads = needed_security
         should_overflow = true
       } else if (CURRENT_MONEY < MAX_MONEY && needed_grow != state.grow) {
         script = SCRIPTS[2]
