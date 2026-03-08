@@ -18,7 +18,7 @@ export async function main(ns: NS) {
       case "get": {
         const port = await registerOrGetPortNumber(ns, requestData.name, data)
 
-        ns.print(`Written: ${port}`)
+        ns.print(`Written: ${port} ${requestData.name}`)
         while (!write.tryWrite(port)) {
           await ns.asleep(0)
         }
@@ -34,12 +34,15 @@ export async function main(ns: NS) {
       }
       case "delete": {
         const success = await deregisterPort(ns, requestData.name, data)
+
+        ns.print(`Deletion ${success} ${requestData.name}`)
         while (!write.tryWrite(success)) {
           await ns.asleep(0)
         }
         while (!write.empty()) {
           await ns.asleep(0)
         }
+        ns.print("Consumed delete")
         read.read()
         break;
       }

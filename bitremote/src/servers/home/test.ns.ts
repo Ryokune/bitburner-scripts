@@ -1,8 +1,10 @@
-import { daemonGetPort } from "./lib/portdaemonlib"
+import { daemonDeletePort, daemonGetPort } from "./lib/portdaemonlib"
 
 export async function main(ns: NS) {
-  const portNum = await daemonGetPort(ns, "hello")
-  ns.tprint(portNum)
+  await daemonDeletePort(ns, "hack")
+  await daemonDeletePort(ns, "grow")
+  await daemonGetPort(ns, "hack")
+  await daemonGetPort(ns, "grow")
 }
 
 export function autocomplete(data: AutocompleteData, args: string[]): string[] {

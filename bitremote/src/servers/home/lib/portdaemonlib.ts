@@ -20,6 +20,7 @@ async function daemonRequest<T>(ns: NS, request: PortDaemonRequest): Promise<T> 
   }
 
   await daemon_writer.nextWrite()
+  await ns.sleep(0)
   return daemon_writer.read()
 }
 
