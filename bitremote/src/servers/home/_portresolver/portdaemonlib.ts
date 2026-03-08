@@ -1,4 +1,4 @@
-import { deregisterPort, generatePortsData, getPort, getPortNumber, Ports, registerPort } from "./ports";
+import { deregisterPort, generatePortsData, getPortNumber, Ports, registerPort } from "./ports";
 
 export const PORTD_READ_PORT = 2;
 export const PORTD_WRITE_PORT = 3;

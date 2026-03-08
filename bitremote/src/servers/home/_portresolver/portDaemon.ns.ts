@@ -1,5 +1,5 @@
-import { PortDaemonRequest, PORTD_READ_PORT, PORTD_WRITE_PORT } from "@home/lib/portdaemonlib";
-import { deregisterPort, generatePortsData, getPortNumber, registerOrGetPortNumber, registerPort, type Ports } from "@home/lib/ports";
+import { PortDaemonRequest, PORTD_READ_PORT, PORTD_WRITE_PORT } from "@home/_portresolver/portdaemonlib";
+import { deregisterPort, generatePortsData, getPortNumber, registerOrGetPortNumber, registerPort, type Ports } from "@home/_portresolver/ports";
 
 // all of this complicated mess could be simplified with just....
 // a lib/ports.ts file that exports....

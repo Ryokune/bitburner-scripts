@@ -1,4 +1,3 @@
-import { PortDaemonData } from "@home/daemons/portDaemon.ns"
 
 export async function main(ns: NS) {
   ns.ui.openTail()
@@ -7,18 +6,12 @@ export async function main(ns: NS) {
     ns.clearLog()
 
     let str = ""
-    if (ns.isRunning("daemons/portDaemon.ns.ts")) {
-      for (const [a, b] of PortDaemonData.ports) {
-        str += `${a} ${b}\n`
-        str += `${ns.getPortHandle(b).peek()}\n`
-      }
-    } else {
-      for (let i = 1; i <= 50; i++) {
-        const d = ns.getPortHandle(i).peek()
-        if (d == 'NULL PORT DATA') continue
-        str += `${i}\n`
-        str += `${d}\n`
-      }
+
+    for (let i = 1; i <= 50; i++) {
+      const d = ns.getPortHandle(i).peek()
+      if (d == 'NULL PORT DATA') continue
+      str += `${i}\n`
+      str += `${d}\n`
     }
 
     ns.print(str)

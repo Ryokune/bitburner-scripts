@@ -1,9 +1,7 @@
 
 import { calculateFitness, getHosts } from "@home/lib/main"
-import { daemonDeletePort, daemonGetPortHandle, daemonRegisterPort, initunsafe } from "@home/lib/portdaemonlib"
-import { deregisterPort } from "@home/lib/ports"
 import { NetscriptPort } from "@ns"
-
+import PORTS from "@home/lib/ports"
 interface Server {
   hack: number,
   weaken: number,
@@ -24,10 +22,9 @@ const SCRIPTS = [
 export async function main(ns: NS) {
   // Clear any excess data in the HACK/GROW/WEAKEN ports.
   // I should create a port lib soon for more flexibility.
-  // ns.clearPort(1);
-  // ns.clearPort(2)
-  // ns.clearPort(3);
-  initunsafe()
+  ns.clearPort(PORTS.HACK_PORT);
+  ns.clearPort(PORTS.WEAKEN_PORT)
+  ns.clearPort(PORTS.GROW_PORT);
   ns.disableLog("ALL")
   ns.ramOverride(7.75)
   ns.ui.openTail()
@@ -47,18 +44,12 @@ export async function main(ns: NS) {
       }
     }
   }
-
-  await daemonRegisterPort(ns, "hack")
-  ns.print('h.')
-  await daemonRegisterPort(ns, "grow")
-  ns.print('g')
-  await daemonRegisterPort(ns, "weaken")
-  ns.print('w')
+  const hack_port = ns.getPortHandle(PORTS.HACK_PORT)
+  const weaken_port = ns.getPortHandle(PORTS.WEAKEN_PORT)
+  const grow_port = ns.getPortHandle(PORTS.GROW_PORT)
   while (true) {
     ns.clearLog()
-    const hack_port = await daemonGetPortHandle(ns, "hack")
-    const weaken_port = await daemonGetPortHandle(ns, "weaken")
-    const grow_port = await daemonGetPortHandle(ns, "grow")
+
 
     if (!hack_port || !weaken_port || !grow_port) {
       ns.print(`COULD NOT GET PORTS!`)
