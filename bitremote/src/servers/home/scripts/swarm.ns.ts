@@ -1,6 +1,7 @@
 
 import { calculateFitness, getHosts } from "@home/lib/main"
-import { daemonGetPortHandle } from "@home/lib/portdaemonlib"
+import { daemonDeletePort, daemonGetPortHandle, daemonRegisterPort } from "@home/lib/portdaemonlib"
+import { deregisterPort } from "@home/lib/ports"
 import { NetscriptPort } from "@ns"
 
 interface Server {
@@ -26,22 +27,14 @@ export async function main(ns: NS) {
   // ns.clearPort(1);
   // ns.clearPort(2)
   // ns.clearPort(3);
-  //
-  const hack_port = await daemonGetPortHandle(ns, "hack")
-  const weaken_port = await daemonGetPortHandle(ns, "weaken")
-  const grow_port = await daemonGetPortHandle(ns, "grow")
-
-  if (!hack_port || !weaken_port || !grow_port) {
-    ns.tprint(`COULD NOT INITIALIZE PORTS!`)
-    return
-  }
-
+  //  
   ns.disableLog("ALL")
   ns.ramOverride(7.75)
   ns.ui.openTail()
   ns.atExit(() => {
     ns.ui.closeTail()
   })
+
   const H = new Map<string, Server>()
   function getAvailableRam(host: string) {
     return ns.getServerMaxRam(host) - ns.getServerUsedRam(host)
@@ -62,8 +55,25 @@ export async function main(ns: NS) {
       }
     }
   }
+
+  await daemonRegisterPort(ns, "hack")
+  ns.print('h')
+  await daemonRegisterPort(ns, "grow")
+  ns.print('g')
+  await daemonRegisterPort(ns, "weaken")
+  ns.print('w')
   while (true) {
     ns.clearLog()
+    const hack_port = await daemonGetPortHandle(ns, "hack")
+    const weaken_port = await daemonGetPortHandle(ns, "weaken")
+    const grow_port = await daemonGetPortHandle(ns, "grow")
+
+    if (!hack_port || !weaken_port || !grow_port) {
+      ns.print(`COULD NOT GET PORTS!`)
+      ns.tprint(`COULD NOT GET PORTS!`)
+      await ns.sleep(5000)
+      continue
+    }
     drainPortHandle(hack_port, "hack")
     drainPortHandle(weaken_port, "weaken")
     drainPortHandle(grow_port, "grow")

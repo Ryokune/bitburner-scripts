@@ -1,49 +1,68 @@
 import { PortDaemonRequest, PORTD_READ_PORT, PORTD_WRITE_PORT } from "@home/lib/portdaemonlib";
-import { deregisterPort, generatePortsData, registerOrGetPortNumber, type Ports } from "@home/lib/ports";
+import { deregisterPort, generatePortsData, getPortNumber, registerOrGetPortNumber, registerPort, type Ports } from "@home/lib/ports";
 
-let data: Ports | undefined
+export let PortDaemonData: Ports;
 
 export async function main(ns: NS) {
-  if (!data) {
-    data = generatePortsData(3, 50)
-  }
+  PortDaemonData = generatePortsData(3, 50)
   const read = ns.getPortHandle(PORTD_READ_PORT)
   const write = ns.getPortHandle(PORTD_WRITE_PORT)
   read.clear()
   write.clear()
+
+  ns.atExit(() => {
+    for (const [_, portNum] of PortDaemonData.ports) {
+      ns.getPortHandle(portNum).clear()
+    }
+  })
+
+  async function doWrite<T>(pid: number, data: T) {
+    ns.print("Checking write is empty.")
+    while (!write.empty()) {
+      await ns.sleep(0)
+    }
+    ns.print(`Writing ${data}`)
+
+    while (!write.tryWrite({ pid, data })) {
+      await ns.sleep(0)
+    }
+    ns.print(`Waiting for consume for ${data}.`)
+    while (!write.empty()) {
+      await ns.sleep(0)
+    }
+    ns.print("Consumed.")
+    read.read()
+  }
+  ns.clearLog()
+  ns.print("Initialized.")
   while (true) {
-    await read.nextWrite()
-    const requestData: PortDaemonRequest = read.peek()
+
+    let requestData: PortDaemonRequest | 'NULL PORT DATA' = 'NULL PORT DATA'
+    while (requestData == 'NULL PORT DATA') {
+      await read.nextWrite()
+      requestData = read.peek()
+    }
     switch (requestData.request) {
+      case "register": {
+        ns.print(`Registering: ${requestData.name}`)
+        const success = await registerPort(ns, requestData.name, PortDaemonData)
+        ns.print(`Registered: ${requestData.name}`)
+        await doWrite(requestData.pid, success)
+        break;
+      }
       case "get": {
-        const port = await registerOrGetPortNumber(ns, requestData.name, data)
+        const port = getPortNumber(requestData.name, PortDaemonData)
 
         ns.print(`Written: ${port} ${requestData.name}`)
-        while (!write.tryWrite(port)) {
-          await ns.asleep(0)
-        }
-
-        // Don't read other requests until this write port has been read
-        // (could get stuck if a script requesting a port gets killed before it resolves the port request)
-        while (!write.empty()) {
-          await ns.asleep(0)
-        }
-        ns.print("Consumed.")
-        read.read()
+        await doWrite(requestData.pid, port)
         break;
       }
       case "delete": {
-        const success = await deregisterPort(ns, requestData.name, data)
+        ns.print(`Deleting: ${requestData.name}`)
+        const success = await deregisterPort(ns, requestData.name, PortDaemonData)
 
         ns.print(`Deletion ${success} ${requestData.name}`)
-        while (!write.tryWrite(success)) {
-          await ns.asleep(0)
-        }
-        while (!write.empty()) {
-          await ns.asleep(0)
-        }
-        ns.print("Consumed delete")
-        read.read()
+        await doWrite(requestData.pid, success)
         break;
       }
       default: {

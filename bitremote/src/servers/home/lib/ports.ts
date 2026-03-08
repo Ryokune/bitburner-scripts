@@ -77,6 +77,8 @@ export async function deregisterPort(ns: NS, name: string, data: Ports): Promise
     const port = data.ports.get(name)
     if (port === undefined) return false
 
+    const handle = ns.getPortHandle(port)
+    handle.clear()
     data.available.push(port)
     data.ports.delete(name)
     return true
