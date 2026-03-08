@@ -144,7 +144,10 @@ export async function main(ns: NS) {
 
         if (possibleThreads <= 0) continue
         const threadsToRun = Math.min(possibleThreads, targetThreads)
-        const PID = ns.exec(script, swarmHost, threadsToRun, target, threadsToRun)
+        const PID = ns.exec(script, swarmHost, {
+          threads: threadsToRun,
+          temporary: true
+        }, target, threadsToRun)
         if (PID == 0) continue;
         targetThreads -= threadsToRun
         switch (script) {
