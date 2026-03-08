@@ -52,7 +52,7 @@ export async function main(ns: NS) {
     // totally readable yea
     Array.from(H).sort((a, b) => (a[1].grow + a[1].hack + a[1].weaken) - (b[1].grow + b[1].hack + b[1].weaken)).forEach((v) => ns.print(`${v[0]}: ${Object.entries(v[1])}`))
 
-    const HOSTS = getHosts(ns, h => h != "home" && h != "pserv" && ns.hasRootAccess(h)).sort((a, b) => getAvailableRam(b) - (getAvailableRam(a)))
+    const HOSTS = getHosts(ns, h => h != "home" && ns.hasRootAccess(h)).sort((a, b) => getAvailableRam(b) - (getAvailableRam(a)))
     const DATA = []
     for (const HOST of HOSTS) {
       const fitness = calculateFitness(ns, HOST)
