@@ -1,3 +1,5 @@
+import { RunOptions } from "@ns";
+
 export const PROGRAMS: Record<string, (ns: NS, host: string) => void> = {
   "brutessh.exe": (ns, h) => ns.brutessh(h),
   "ftpcrack.exe": (ns, h) => ns.ftpcrack(h),
@@ -45,12 +47,12 @@ export function resolvePath(base: string, relative: string): string {
 export function runScript(
   ns: NS,
   script: string,
-  threads = 1,
+  threadsOrOptions: number | RunOptions = 1,
   ...args: (string | number | boolean)[]
 ) {
   const caller = ns.getScriptName();
   const resolved = resolvePath(caller, script);
-  return ns.run(resolved, threads, ...args);
+  return ns.run(resolved, threadsOrOptions, ...args);
 }
 
 
