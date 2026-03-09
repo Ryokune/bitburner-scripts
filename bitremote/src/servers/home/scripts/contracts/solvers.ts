@@ -1,10 +1,15 @@
 import { CodingContractSignatures } from "@ns"
-type ContractFunctions = {
+type ContractResult<T> = [success: boolean, result: T]
+
+type ContractFunctions = Partial<{
   [K in keyof CodingContractSignatures]:
-  (input: CodingContractSignatures[K][0], ns: NS) => [boolean, CodingContractSignatures[K][1]]
-}
-export default {
-  "Spiralize Matrix": function(input, ns) {
+  (input: CodingContractSignatures[K][0], ns: NS)
+    => ContractResult<CodingContractSignatures[K][1]>
+}>
+
+const SOLVERS: ContractFunctions = {
+
+  "Spiralize Matrix"(input, ns) {
     // https://www.geeksforgeeks.org/dsa/print-a-given-matrix-in-spiral-form/
     const m = input.length;
     const n = input[0].length;
@@ -48,7 +53,7 @@ export default {
     //lmao.
     //return [true, [input[0], input[1].pop(), input[2].pop(), input[2].reverse(), input[1]].flat()]
   },
-  "Find Largest Prime Factor": function(input, ns) {
+  "Find Largest Prime Factor"(input, ns) {
     let largestPrime = -1;
     while (input % 2 === 0) {
       largestPrime = 2;
@@ -65,13 +70,13 @@ export default {
     }
     return [true, largestPrime]
   },
-  "Array Jumping Game": function(input, ns) {
+  "Array Jumping Game"(input, ns) {
     return [true, getMinJumps(input) > 0 ? 1 : 0]
   },
-  "Array Jumping Game II": function(input, ns) {
+  "Array Jumping Game II"(input, ns) {
     return [true, getMinJumps(input)]
   },
-  "Minimum Path Sum in a Triangle": function(input, ns) {
+  "Minimum Path Sum in a Triangle"(input, ns) {
     const n = input.length
     let dp = input[n - 1]
 
@@ -84,7 +89,7 @@ export default {
     }
     return [true, dp[0]]
   },
-  "Encryption I: Caesar Cipher": function([input, shift], ns) {
+  "Encryption I: Caesar Cipher"([input, shift], ns) {
     return [true, [...input].map(char => {
       const code = char.charCodeAt(0)
       if (code >= 65 && code <= 90) {
@@ -93,7 +98,7 @@ export default {
       return char
     }).join('')]
   },
-  "Encryption II: Vigenère Cipher": function([input, keyword], ns) {
+  "Encryption II: Vigenère Cipher"([input, keyword], ns) {
     const KEYSTREAM = keyword.repeat(Math.ceil(input.length / keyword.length)).substring(0, input.length)
     return [true, [...input].map((char, index) => {
       const code = char.charCodeAt(0)
@@ -103,19 +108,19 @@ export default {
       return char
     }).join('')]
   },
-  "Algorithmic Stock Trader I": function(input, ns) {
+  "Algorithmic Stock Trader I"(input, ns) {
     return [true, calculateMaxProfits(input, 1)]
   },
-  "Algorithmic Stock Trader II": function(input, ns) {
+  "Algorithmic Stock Trader II"(input, ns) {
     return [true, calculateMaxProfits(input, 100)]
   },
-  "Algorithmic Stock Trader III": function(input, ns) {
+  "Algorithmic Stock Trader III"(input, ns) {
     return [true, calculateMaxProfits(input, 2)]
   },
-  "Algorithmic Stock Trader IV": function([transactions, input], ns) {
+  "Algorithmic Stock Trader IV"([transactions, input], ns) {
     return [true, calculateMaxProfits(input, transactions)]
   },
-  "Sanitize Parentheses in Expression": function(expression, ns) {
+  "Sanitize Parentheses in Expression"(expression, ns) {
     if (expression.length === 0) return [true, [""]]
     const queue = [expression];
     const tested = new Set();
@@ -141,7 +146,7 @@ export default {
     }
     return [true, solution]
   },
-  "HammingCodes: Encoded Binary to Integer": function(input, ns) {
+  "HammingCodes: Encoded Binary to Integer"(input, ns) {
     const bits = input.split('').map(Number);
     const n = bits.length;
     let errorIdx = 0;
@@ -170,7 +175,7 @@ export default {
 
     return [true, parseInt(dataBits.join(''), 2)];
   },
-  "HammingCodes: Integer to Encoded Binary": function(input, ns) {
+  "HammingCodes: Integer to Encoded Binary"(input, ns) {
     const binary = input.toString(2)
     const m = binary.length
     let r = 0;
@@ -198,13 +203,13 @@ export default {
     dataBits[0] = dataBits.reduce((a, b) => a ^ b, 0);
     return [true, dataBits.join("")]
   },
-  "Unique Paths in a Grid I": function([rows, columns], ns) {
+  "Unique Paths in a Grid I"([rows, columns], ns) {
     return [true, getUniquePathsOfGrid(Array.from({ length: rows }, () => Array(columns).fill(0)))]
   },
-  "Unique Paths in a Grid II": function(grid, ns) {
+  "Unique Paths in a Grid II"(grid, ns) {
     return [true, getUniquePathsOfGrid(grid)]
   },
-  "Generate IP Addresses": function(input, ns) {
+  "Generate IP Addresses"(input, ns) {
     const n = input.length
     const result = []
     const isValid = (seg: string) => {
@@ -234,7 +239,7 @@ export default {
     }
     return [true, result]
   },
-  "Merge Overlapping Intervals": function(input, ns) {
+  "Merge Overlapping Intervals"(input, ns) {
     const sorted = [...input].sort((a, b) => a[0] - b[0]);
     const result = [];
     result.push(sorted[0]);
@@ -251,7 +256,7 @@ export default {
     }
     return [true, result]
   },
-  "Shortest Path in a Grid": function(input, ns) {
+  "Shortest Path in a Grid"(input, ns) {
     const rows = input.length
     const cols = input[0].length
 
@@ -290,8 +295,28 @@ export default {
       }
     }
     return [true, ""]
+  },
+  "Total Ways to Sum"(input, ns) {
+    return [true, getTotalWaysToSum(input, Array.from({ length: input - 1 }, (_, i) => i + 1))];
+  },
+  "Total Ways to Sum II"([target, set], ns) {
+    return [true, getTotalWaysToSum(target, set)]
   }
-} as ContractFunctions
+}
+
+export default SOLVERS
+
+function getTotalWaysToSum(input: number, set: number[]) {
+  let dp = new Array(input + 1).fill(0);
+  dp[0] = 1; // Base case: one way to make sum 0
+
+  for (const num of set) {
+    for (let j = num; j <= input; j++) {
+      dp[j] += dp[j - num];
+    }
+  }
+  return dp[input];
+}
 
 function getMinJumps(nums: number[]) {
   let jumps = 0
