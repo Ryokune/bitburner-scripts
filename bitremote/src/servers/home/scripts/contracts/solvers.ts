@@ -49,15 +49,21 @@ export default {
     //return [true, [input[0], input[1].pop(), input[2].pop(), input[2].reverse(), input[1]].flat()]
   },
   "Find Largest Prime Factor": function(input, ns) {
-    let i = 2;
-    while (i <= input) {
-      if (input % i == 0) {
+    let largestPrime = -1;
+    while (input % 2 === 0) {
+      largestPrime = 2;
+      input /= 2;
+    }
+    for (let i = 3; i * i <= input; i += 2) {
+      while (input % i === 0) {
+        largestPrime = i;
         input /= i;
-      } else {
-        i++;
       }
     }
-    return [true, i];
+    if (input > 2) {
+      largestPrime = input;
+    }
+    return [true, largestPrime]
   },
   "Array Jumping Game": function(input, ns) {
     return [true, getMinJumps(input) > 0 ? 1 : 0]
@@ -244,6 +250,46 @@ export default {
       }
     }
     return [true, result]
+  },
+  "Shortest Path in a Grid": function(input, ns) {
+    const rows = input.length
+    const cols = input[0].length
+
+    if (input[0][0] === 1 || input[rows - 1][cols - 1] === 1) return [true, ""]
+
+    const directions = [
+      [1, 0, "D"],
+      [-1, 0, "U"],
+      [0, 1, "R"],
+      [0, -1, "L"]
+    ] as const
+    const queue: [number, number, string][] = [[0, 0, ""]]
+    const visited = new Set<string>()
+    visited.add("0,0")
+    while (queue.length) {
+      const [r, c, path] = queue.shift()!
+
+      if (r === rows - 1 && c === cols - 1) return [true, path]
+
+      for (const [dr, dc, move] of directions) {
+        const nr = r + dr
+        const nc = c + dc
+        const key = `${nr},${nc}`
+
+        if (
+          nr >= 0 &&
+          nc >= 0 &&
+          nr < rows &&
+          nc < cols &&
+          input[nr][nc] === 0 &&
+          !visited.has(key)
+        ) {
+          visited.add(key)
+          queue.push([nr, nc, path + move])
+        }
+      }
+    }
+    return [true, ""]
   }
 } as ContractFunctions
 
@@ -261,7 +307,7 @@ function getMinJumps(nums: number[]) {
       currentEnd = farthest
     }
   }
-
+  if (currentEnd < nums.length - 1) return 0;
   return jumps
 }
 

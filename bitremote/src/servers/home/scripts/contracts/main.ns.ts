@@ -20,7 +20,7 @@ export async function main(ns: NS) {
           if (!SUCCESS_STRING) {
             ns.tprint(c.red.bold.underline(`Failed ${FILE} on ${HOST} (${TYPE}). ${ns.codingcontract.getNumTriesRemaining(FILE, HOST)} tries remaining. ${SOLUTION}`))
           } else {
-            ns.tprint(c.green.underline(`SUCCESS - Gained ${SUCCESS_STRING} from ${TYPE}@${FILE} (${FILE})`))
+            ns.tprint(c.green.underline(`SUCCESS - Gained ${SUCCESS_STRING} from ${TYPE}@${HOST} (${FILE})`))
           }
         } else {
           ns.tprint(SOLUTION)
