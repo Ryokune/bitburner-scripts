@@ -9,25 +9,31 @@ export async function main(ns: NS) {
     for (const FILE of FILES) {
       const EXT = FILE.split(".").pop()
       if (EXT != "cct") continue
+
       const TYPE = ns.codingcontract.getContractType(FILE, HOST)
       const DATA = ns.codingcontract.getData(FILE, HOST)
       const SOLVER = SOLVERS[TYPE]
 
-      ns.tprint(`${SOLVER ? c.green(TYPE) : c.yellow.underline(TYPE)}${c.cyan('@')}${c.underline.green(HOST)}: ${FILE}`)
-      ns.tprint(DATA)
-      if (SOLVER) {
-        const [USE, SOLUTION] = SOLVER(DATA as never, ns)
-        if (USE) {
-          const SUCCESS_STRING = ns.codingcontract.attempt(SOLUTION, FILE, HOST)
-          if (!SUCCESS_STRING) {
-            ns.tprint(c.red.bold.underline(`Failed ${FILE} on ${HOST} (${TYPE}). ${ns.codingcontract.getNumTriesRemaining(FILE, HOST)} tries remaining. ${SOLUTION}`))
-          } else {
-            ns.tprint(c.green.underline(`SUCCESS - Gained ${SUCCESS_STRING} from ${TYPE}@${HOST} (${FILE})`))
-          }
-        } else {
-          ns.tprint(SOLUTION)
-        }
+      if (!SOLVER) {
+        ns.tprint(`NO SOLVER: ${c.yellow.underline(TYPE)}${c.cyan('@')}${c.underline.green(HOST)}: ${FILE}`)
+        ns.tprint(DATA)
+        continue
       }
+
+      const [USE, SOLUTION] = SOLVER(DATA as never, ns)
+      if (!USE) {
+        ns.tprint(SOLUTION)
+        continue
+      }
+
+      const SUCCESS_STRING = ns.codingcontract.attempt(SOLUTION, FILE, HOST)
+      if (!SUCCESS_STRING) {
+        ns.tprint(c.red.bold.underline(`Failed ${FILE} on ${HOST} (${TYPE}). ${ns.codingcontract.getNumTriesRemaining(FILE, HOST)} tries remaining. ${SOLUTION}`))
+        continue
+      }
+
+      ns.tprint(c.green.underline(`SUCCESS - Gained ${SUCCESS_STRING} from ${TYPE}@${HOST} (${FILE})`))
+
     }
   }
 }
