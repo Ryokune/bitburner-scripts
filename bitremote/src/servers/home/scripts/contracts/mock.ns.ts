@@ -25,19 +25,17 @@ export async function main(ns: NS) {
   const repeat = flags.repeat as number
 
   const stats: Record<string, SolverStats> = {}
-
-  for (const type of Object.keys(solvers)) {
-    stats[type] = {
-      success: 0,
-      fail: 0,
-      duration: 0,
-      fails: [],
-    }
-  }
-
   for (let r = 0; r < repeat; r++) {
     ns.tprint(`Generating: ${r + 1}/${repeat}`)
     for (const [type, solver] of Object.entries(solvers)) {
+      if (!stats[type]) {
+        stats[type] = {
+          success: 0,
+          fail: 0,
+          duration: 0,
+          fails: [],
+        }
+      }
       const dummy = ns.codingcontract.createDummyContract(type)
       const data = ns.codingcontract.getData(dummy)
       const desc = ns.codingcontract.getDescription(dummy)
@@ -69,21 +67,17 @@ export async function main(ns: NS) {
     }
   }
 
-  const total = repeat
-
   for (const [type, s] of Object.entries(stats).sort((a, b) => a[1].duration - b[1].duration)) {
-    const avgDuration = s.duration / total
-    const failPct = (s.fail / total) * 100
-    const successPct = (s.success / total) * 100
+    const avgDuration = s.duration / repeat
+    const failPct = (s.fail / repeat) * 100
+    const successPct = (s.success / repeat) * 100
 
     const header = c.bold.underline(type)
-
     const counts =
       "  fail: " +
-      c.red(`${s.fail}/${total} (${failPct.toFixed(1)}%) `) +
+      c.red(`${s.fail}/${repeat} (${failPct.toFixed(1)}%) `) +
       "success: " +
-      c.green(`${s.success}/${total} (${successPct.toFixed(1)}%)`)
-
+      c.green(`${s.success}/${repeat} (${successPct.toFixed(1)}%)`)
     ns.tprint(header)
     ns.tprint(`  (avg ${avgDuration.toFixed(2)} ms | total ${s.duration.toFixed(2)} ms) `)
     ns.tprint(counts)
