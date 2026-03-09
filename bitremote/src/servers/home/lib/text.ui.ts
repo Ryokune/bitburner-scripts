@@ -134,7 +134,7 @@ export function progress(
   const empty = width - filled
 
   const bar =
-    c.green("█".repeat(filled)) +
+    c.rgb(25, 100, 20)("█".repeat(filled)) +
     c.white("░".repeat(empty))
 
   const percent = (pct * 100).toFixed(1)
