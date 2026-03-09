@@ -106,8 +106,8 @@ export function calculateFitness(ns: NS, HOST: string) {
   const maxMoney = ns.getServerMaxMoney(HOST)
 
   if (maxMoney <= 0) return -1
-  const minSec = ns.getServerMinSecurityLevel(HOST)
-  const hackChance = Math.max(0.1, ns.hackAnalyzeChance(HOST))
+  //const minSec = ns.getServerMinSecurityLevel(HOST)
+  //const hackChance = Math.max(0.1, ns.hackAnalyzeChance(HOST))
   const growth = ns.getServerGrowth(HOST)
   // const fitness =
   //   ((maxMoney / 1e10) *
@@ -116,16 +116,18 @@ export function calculateFitness(ns: NS, HOST: string) {
   //   / (((ns.getGrowTime(HOST) + ns.getHackTime(HOST) + ns.getWeakenTime(HOST)) / 3)
   //     * minSec)
   const AVAIL_MONEY = ns.getServerMoneyAvailable(HOST)
-  const TARGETS_MONEY_FITNESS = (AVAIL_MONEY / maxMoney)
-  const TARGETS_SECURITY_FITNESS = (minSec / ns.getServerSecurityLevel(HOST))
+  //const TARGETS_MONEY_FITNESS = (AVAIL_MONEY / maxMoney)
+  //const TARGETS_SECURITY_FITNESS = (minSec / ns.getServerSecurityLevel(HOST))
 
-  const fitness = (
-    (((TARGETS_MONEY_FITNESS * 2) + TARGETS_SECURITY_FITNESS) / 3)
-    * (growth / ((maxMoney - AVAIL_MONEY) / maxMoney))
-    * hackChance
-    * (minSec)
-  )
-    / ((ns.getGrowTime(HOST) + ns.getHackTime(HOST) + ns.getWeakenTime(HOST)) / 3)
+  // const fitness = (
+  //   (((TARGETS_MONEY_FITNESS * 2) + TARGETS_SECURITY_FITNESS) / 3)
+  //   * (growth / ((maxMoney - AVAIL_MONEY) / maxMoney))
+  //   * hackChance
+  //   * (minSec)
+  // )
+  //   / ((ns.getGrowTime(HOST) + ns.getHackTime(HOST) + ns.getWeakenTime(HOST)) / 3)
+  //
+  const fitness = (maxMoney * (ns.getPlayer().skills.hacking - ns.getServerRequiredHackingLevel(HOST) * 1.5) * (growth / ((maxMoney - AVAIL_MONEY) / maxMoney))) / (ns.getGrowTime(HOST) + ns.getHackTime(HOST) + ns.getWeakenTime(HOST))
 
   //const fitness = (((TARGETS_MONEY_FITNESS + TARGETS_SECURITY_FITNESS) / 2)
   //  / ((ns.getGrowTime(HOST) + ns.getHackTime(HOST) + ns.getWeakenTime(HOST)) / 3))

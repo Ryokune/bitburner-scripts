@@ -1,9 +1,5 @@
+import { color, FG, log } from "@home/lib/colors"
 import solvers from "./solvers"
-
-const GREEN = "\x1b[32m"
-const RED = "\x1b[31m"
-const RESET = "\x1b[0m"
-
 export async function main(ns: NS) {
   for (const [type, solver] of Object.entries(solvers)) {
     const dummy_contract = ns.codingcontract.createDummyContract(type)
@@ -13,9 +9,9 @@ export async function main(ns: NS) {
     const [use, result] = solver(data as never, ns)
     const success = ns.codingcontract.attempt(result, dummy_contract)
     if (success) {
-      ns.tprint(`${GREEN}✔ ${type} solver passed with data: ${data} => ${result}${RESET}`)
+      ns.tprint(color(`✔ ${type} solver passed with data: ${data} => ${result}`, FG.green))
     } else {
-      ns.tprint(`${RED}✖ ${type} solver failed with data: ${data} => ${result}${RESET}`)
+      ns.tprint(color(`✖ ${type} solver failed with data: ${data} => ${result}`, FG.red))
       ns.tprint(desc)
     }
 

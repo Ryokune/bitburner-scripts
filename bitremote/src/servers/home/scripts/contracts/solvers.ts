@@ -5,7 +5,47 @@ type ContractFunctions = {
 }
 export default {
   "Spiralize Matrix": function(input, ns) {
-    return [false, [0]]
+    // https://www.geeksforgeeks.org/dsa/print-a-given-matrix-in-spiral-form/
+    const m = input.length;
+    const n = input[0].length;
+
+    const res = [];
+
+    let top = 0, bottom = m - 1, left = 0, right = n - 1;
+
+    while (top <= bottom && left <= right) {
+
+      // Print top row from left to right
+      for (let i = left; i <= right; ++i) {
+        res.push(input[top][i]);
+      }
+      top++;
+
+      // Print right column from top to bottom
+      for (let i = top; i <= bottom; ++i) {
+        res.push(input[i][right]);
+      }
+      right--;
+
+      // Print bottom row from right to left (if exists)
+      if (top <= bottom) {
+        for (let i = right; i >= left; --i) {
+          res.push(input[bottom][i]);
+        }
+        bottom--;
+      }
+
+      // Print left column from bottom to top (if exists)
+      if (left <= right) {
+        for (let i = bottom; i >= top; --i) {
+          res.push(input[i][left]);
+        }
+        left++;
+      }
+    }
+    return [true, res]
+
+    //lmao.
     //return [true, [input[0], input[1].pop(), input[2].pop(), input[2].reverse(), input[1]].flat()]
   },
   "Find Largest Prime Factor": function(input, ns) {
@@ -71,6 +111,12 @@ export default {
   "Algorithmic Stock Trader I": function(input, ns) {
     return [true, calculateMaxProfits(input, 1)]
   },
+  "Algorithmic Stock Trader II": function(input, ns) {
+    return [true, calculateMaxProfits(input, 100)]
+  },
+  "Algorithmic Stock Trader III": function(input, ns) {
+    return [true, calculateMaxProfits(input, 2)]
+  },
   "Algorithmic Stock Trader IV": function([transactions, input], ns) {
     return [true, calculateMaxProfits(input, transactions)]
   },
@@ -101,36 +147,65 @@ export default {
     return [true, solution]
   },
   "HammingCodes: Encoded Binary to Integer": function(input, ns) {
-    let bits = input.split('').map(Number);
-    let n = bits.length;
-    let parityBits = Math.ceil(Math.log2(n + 1));
-
+    const bits = input.split('').map(Number);
+    const n = bits.length;
     let errorIdx = 0;
-    for (let i = 0; i < parityBits; i++) {
-      let parityPos = Math.pow(2, i);
-      let paritySum = 0;
-      for (let j = parityPos; j < n; j += 2 * parityPos) {
-        for (let k = 0; k < parityPos && j + k < n; k++) {
-          paritySum ^= bits[j + k];
+
+    for (let p = 1; p < n; p <<= 1) {
+      let parity = 0;
+
+      for (let i = p; i < n; i += 2 * p) {
+        for (let k = 0; k < p && i + k < n; k++) {
+          parity ^= bits[i + k];
         }
       }
-      if (paritySum !== 0) errorIdx += parityPos;
+
+      if (parity !== 0) errorIdx += p;
     }
 
-    if (errorIdx < n) {
+    if (errorIdx > 0 && errorIdx < n) {
       bits[errorIdx] ^= 1;
     }
 
-    let dataBits = [];
+    const dataBits = [];
     for (let i = 1; i < n; i++) {
-      if (!((i & (i - 1)) === 0)) {
+      if ((i & (i - 1)) !== 0) {
         dataBits.push(bits[i]);
       }
     }
 
     return [true, parseInt(dataBits.join(''), 2)];
   },
+  "HammingCodes: Integer to Encoded Binary": function(input, ns) {
+    const binary = input.toString(2)
+    const m = binary.length
+    let r = 0;
+    while ((1 << r) < m + r + 1) r++;
+
+    const totalLength = m + r + 1;
+    const arr = new Array(totalLength).fill(0);
+    let j = 0;
+    for (let i = 1; i < totalLength; i++) {
+      if ((i & (i - 1)) !== 0) {
+        arr[i] = Number(binary[j++]);
+      }
+    }
+    for (let p = 1; p < totalLength; p <<= 1) {
+      let parity = 0
+      for (let i = p; i < totalLength; i += 2 * p) {
+        for (let k = 0; k < p && i + k < totalLength; k++) {
+          parity ^= arr[i + k];
+        }
+      }
+
+      arr[p] = parity;
+    }
+
+    arr[0] = arr.reduce((a, b) => a ^ b, 0);
+    return [true, arr.join("")]
+  }
 } as ContractFunctions
+
 function sanitary(string: string) {
   let open = 0;
   for (const char of string) {
