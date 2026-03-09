@@ -16,7 +16,6 @@ export async function main(ns: NS) {
     }
 
     ns.rm(dummy_contract)
-    await ns.sleep(500)
   }
 }
 

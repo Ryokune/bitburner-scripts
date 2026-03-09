@@ -49,32 +49,21 @@ export default {
     //return [true, [input[0], input[1].pop(), input[2].pop(), input[2].reverse(), input[1]].flat()]
   },
   "Find Largest Prime Factor": function(input, ns) {
-    let largestPrime = -1;
-    while (input % 2 === 0) {
-      largestPrime = 2;
-      input /= 2;
-    }
-    for (let i = 3; i * i <= input; i += 2) {
-      while (input % i === 0) {
-        largestPrime = i;
+    let i = 2;
+    while (i <= input) {
+      if (input % i == 0) {
         input /= i;
+      } else {
+        i++;
       }
     }
-    if (input > 2) {
-      largestPrime = input;
-    }
-    return [true, largestPrime];
+    return [true, i];
   },
   "Array Jumping Game": function(input, ns) {
-    let maxReach = 0
-
-    for (let i = 0; i < input.length; i++) {
-      if (i > maxReach) return [true, 0]
-      maxReach = Math.max(maxReach, i + input[i])
-      if (maxReach >= input.length - 1) return [true, 1]
-    }
-
-    return [true, 1]
+    return [true, getMinJumps(input) > 0 ? 1 : 0]
+  },
+  "Array Jumping Game II": function(input, ns) {
+    return [true, getMinJumps(input)]
   },
   "Minimum Path Sum in a Triangle": function(input, ns) {
     const n = input.length
@@ -153,7 +142,6 @@ export default {
 
     for (let p = 1; p < n; p <<= 1) {
       let parity = 0;
-
       for (let i = p; i < n; i += 2 * p) {
         for (let k = 0; k < p && i + k < n; k++) {
           parity ^= bits[i + k];
@@ -183,28 +171,124 @@ export default {
     while ((1 << r) < m + r + 1) r++;
 
     const totalLength = m + r + 1;
-    const arr = new Array(totalLength).fill(0);
+    const dataBits = new Array(totalLength).fill(0);
     let j = 0;
     for (let i = 1; i < totalLength; i++) {
       if ((i & (i - 1)) !== 0) {
-        arr[i] = Number(binary[j++]);
+        dataBits[i] = Number(binary[j++]);
       }
     }
     for (let p = 1; p < totalLength; p <<= 1) {
       let parity = 0
       for (let i = p; i < totalLength; i += 2 * p) {
         for (let k = 0; k < p && i + k < totalLength; k++) {
-          parity ^= arr[i + k];
+          parity ^= dataBits[i + k];
         }
       }
 
-      arr[p] = parity;
+      dataBits[p] = parity;
     }
 
-    arr[0] = arr.reduce((a, b) => a ^ b, 0);
-    return [true, arr.join("")]
+    dataBits[0] = dataBits.reduce((a, b) => a ^ b, 0);
+    return [true, dataBits.join("")]
+  },
+  "Unique Paths in a Grid I": function([rows, columns], ns) {
+    return [true, getUniquePathsOfGrid(Array.from({ length: rows }, () => Array(columns).fill(0)))]
+  },
+  "Unique Paths in a Grid II": function(grid, ns) {
+    return [true, getUniquePathsOfGrid(grid)]
+  },
+  "Generate IP Addresses": function(input, ns) {
+    const n = input.length
+    const result = []
+    const isValid = (seg: string) => {
+      if (seg.length > 1 && seg[0] === '0') return false;
+      const num = Number(seg);
+      return num >= 0 && num <= 255;
+    };
+
+    for (let i = 1; i <= 3 && i < n - 2; i++) {
+      for (let j = i + 1; j <= i + 3 && j < n - 1; j++) {
+        for (let k = j + 1; k <= j + 3 && k < n; k++) {
+
+          const a = input.slice(0, i);
+          const b = input.slice(i, j);
+          const c = input.slice(j, k);
+          const d = input.slice(k);
+
+          if (
+            a.length <= 3 && b.length <= 3 &&
+            c.length <= 3 && d.length <= 3 &&
+            isValid(a) && isValid(b) && isValid(c) && isValid(d)
+          ) {
+            result.push(`${a}.${b}.${c}.${d}`);
+          }
+        }
+      }
+    }
+    return [true, result]
+  },
+  "Merge Overlapping Intervals": function(input, ns) {
+    const sorted = [...input].sort((a, b) => a[0] - b[0]);
+    const result = [];
+    result.push(sorted[0]);
+
+    for (let i = 1; i < sorted.length; i++) {
+      const last = result[result.length - 1];
+      const curr = sorted[i];
+
+      if (curr[0] <= last[1]) {
+        last[1] = Math.max(last[1], curr[1]);
+      } else {
+        result.push(curr);
+      }
+    }
+    return [true, result]
   }
 } as ContractFunctions
+
+function getMinJumps(nums: number[]) {
+  let jumps = 0
+  let farthest = 0
+  let currentEnd = 0
+
+  for (let i = 0; i < nums.length - 1; i++) {
+    if (i > farthest) return 0
+    farthest = Math.max(farthest, i + nums[i])
+
+    if (i === currentEnd) {
+      jumps++
+      currentEnd = farthest
+    }
+  }
+
+  return jumps
+}
+
+function getUniquePathsOfGrid(grid: (0 | 1)[][]) {
+  const rows = grid.length
+  const cols = grid[0].length
+
+  if (grid[0][0] === 1 || grid[rows - 1][cols - 1] === 1) {
+    return 0;
+  }
+
+  const dp = Array.from({ length: rows }, () => Array(cols).fill(0));
+  dp[0][0] = 1;
+
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      if (grid[i][j] === 1) {
+        dp[i][j] = 0; // Obstacle
+      } else {
+        if (i > 0) dp[i][j] += dp[i - 1][j]; // Add paths from top
+        if (j > 0) dp[i][j] += dp[i][j - 1]; // Add paths from left
+      }
+    }
+  }
+
+  return dp[rows - 1][cols - 1];
+}
 
 function sanitary(string: string) {
   let open = 0;
@@ -217,20 +301,29 @@ function sanitary(string: string) {
 }
 
 function calculateMaxProfits(prices: number[], transactions: number) {
-
   let maxProfitAt = Array(prices.length + 1).fill(0)
+
   for (let t = 0; t < transactions; t++) {
     let nextMaxProfits = Array(prices.length + 1).fill(0)
-    for (let i = prices.length - 2; i > -1; i--) {
+    let changed = false
+    for (let i = prices.length - 2; i >= 0; i--) {
       let maxProfit = 0
+
       for (let j = i; j < prices.length; j++) {
         maxProfit = Math.max(maxProfit, prices[j] - prices[i] + maxProfitAt[j + 1])
       }
       maxProfit = Math.max(maxProfit, nextMaxProfits[i + 1])
+
       nextMaxProfits[i] = maxProfit
+      if (maxProfit !== maxProfitAt[i]) {
+        changed = true
+      }
     }
+
+    if (!changed) break;
     maxProfitAt = nextMaxProfits
   }
+
   return maxProfitAt[0]
 }
 

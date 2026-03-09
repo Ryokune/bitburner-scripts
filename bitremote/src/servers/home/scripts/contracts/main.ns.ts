@@ -1,5 +1,6 @@
 import { getHosts } from "@home/lib/main"
 import SOLVERS from "./solvers"
+import { c } from "@home/lib/text.ui"
 
 export async function main(ns: NS) {
   const HOSTS = getHosts(ns, h => ns.ls(h).length > 0 && h != "home")
@@ -10,16 +11,16 @@ export async function main(ns: NS) {
       if (EXT != "cct") continue
       const TYPE = ns.codingcontract.getContractType(FILE, HOST)
       const DATA = ns.codingcontract.getData(FILE, HOST)
-      ns.tprint(`${HOST}: ${FILE} ${TYPE}`)
+      ns.tprint(`${SOLVERS[TYPE] ? c.green(TYPE) : c.yellow.underline(TYPE)}${c.cyan('@')}${c.underline.green(HOST)}: ${FILE}`)
       ns.tprint(DATA)
       if (SOLVERS[TYPE]) {
         const [USE, SOLUTION] = SOLVERS[TYPE](DATA as never, ns)
         if (USE) {
           const SUCCESS_STRING = ns.codingcontract.attempt(SOLUTION, FILE, HOST)
           if (!SUCCESS_STRING) {
-            ns.tprint(`Failed ${FILE} on ${HOST} (${TYPE}). ${ns.codingcontract.getNumTriesRemaining(FILE, HOST)} tries remaining. ${SOLUTION}`)
+            ns.tprint(c.red.bold.underline(`Failed ${FILE} on ${HOST} (${TYPE}). ${ns.codingcontract.getNumTriesRemaining(FILE, HOST)} tries remaining. ${SOLUTION}`))
           } else {
-            ns.tprint(`SUCCESS! Gained ${SUCCESS_STRING} from ${HOST}:${FILE} (${TYPE})`)
+            ns.tprint(c.green.underline(`SUCCESS - Gained ${SUCCESS_STRING} from ${TYPE}@${FILE} (${FILE})`))
           }
         } else {
           ns.tprint(SOLUTION)
