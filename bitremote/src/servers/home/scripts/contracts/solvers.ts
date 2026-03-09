@@ -128,19 +128,25 @@ const SOLVERS: ContractFunctions = {
     let found = false;
     const solution = [];
     while (queue.length > 0) {
-      expression = queue.shift()!;
-      if (sanitary(expression)) {
-        solution.push(expression);
-        found = true;
-      }
-      if (found) continue;
-      for (let i = 0; i < expression.length; i++) {
-        if (expression.charAt(i) !== '(' && expression.charAt(i) !== ')')
-          continue;
-        const stripped = expression.slice(0, i) + expression.slice(i + 1);
-        if (!tested.has(stripped)) {
-          queue.push(stripped);
-          tested.add(stripped);
+      const levelSize = queue.length;
+
+      for (let j = 0; j < levelSize; j++) {
+        const expression = queue.shift()!;
+
+        if (sanitary(expression)) {
+          solution.push(expression);
+          found = true;
+        }
+        if (found) continue;
+
+        for (let i = 0; i < expression.length; i++) {
+          if (expression[i] !== '(' && expression[i] !== ')') continue;
+          if (i > 0 && expression[i] === expression[i - 1]) continue;
+          const stripped = expression.slice(0, i) + expression.slice(i + 1);
+          if (!tested.has(stripped)) {
+            tested.add(stripped);
+            queue.push(stripped);
+          }
         }
       }
     }
