@@ -105,7 +105,7 @@ export function getAllRunningProccesses(ns: NS) {
 export function calculateFitness(ns: NS, HOST: string) {
   const maxMoney = ns.getServerMaxMoney(HOST)
 
-  if (maxMoney <= 0) return -1
+  if (maxMoney <= 0) return -Infinity
   //const minSec = ns.getServerMinSecurityLevel(HOST)
   //const hackChance = Math.max(0.1, ns.hackAnalyzeChance(HOST))
   const growth = ns.getServerGrowth(HOST)
