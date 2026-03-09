@@ -22,7 +22,7 @@ export async function main(ns: NS) {
 
       const [USE, SOLUTION] = SOLVER(DATA as never, ns)
       if (!USE) {
-        ns.tprint(SOLUTION)
+        ns.tprint(`Skipped ${c.blue.underline(TYPE)}${c.cyan('@')}${c.underline.green(HOST)}: ${FILE}`)
         continue
       }
 
@@ -32,7 +32,7 @@ export async function main(ns: NS) {
         continue
       }
 
-      ns.tprint(c.green.underline(`SUCCESS - Gained ${SUCCESS_STRING} from ${TYPE}@${HOST} (${FILE})`))
+      ns.tprint(c.green.underline(`SUCCESS - Gained ${SUCCESS_STRING} from solving ${TYPE}@${HOST} (${FILE})`))
 
     }
   }

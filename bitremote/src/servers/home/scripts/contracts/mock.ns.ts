@@ -1,7 +1,7 @@
 import { color, FG } from "@home/lib/colors"
 import solvers from "./solvers"
 import { Flags } from "@home/lib/main"
-import { c } from "@home/lib/text.ui"
+import { c, progress } from "@home/lib/text.ui"
 
 const FLAGS: Flags = [
   ["repeat", 1],
@@ -26,7 +26,7 @@ export async function main(ns: NS) {
 
   const stats: Record<string, SolverStats> = {}
   for (let r = 0; r < repeat; r++) {
-    ns.tprint(`Generating: ${r + 1}/${repeat}`)
+    ns.tprint(`Generating ${progress(r + 1, repeat)}`)
     for (const [type, solver] of Object.entries(solvers)) {
       if (!stats[type]) {
         stats[type] = {
@@ -72,12 +72,13 @@ export async function main(ns: NS) {
     const failPct = (s.fail / repeat) * 100
     const successPct = (s.success / repeat) * 100
 
-    const header = c.bold.underline(type)
+    const header = c.bold.underline(type) +
+      ` (${c.green(s.success.toFixed(0))}/${c.red(s.fail.toFixed(0))})`
     const counts =
       "  fail: " +
-      c.red(`${s.fail}/${repeat} (${failPct.toFixed(1)}%) `) +
+      c.red(`${failPct.toFixed(1)}% `) +
       "success: " +
-      c.green(`${s.success}/${repeat} (${successPct.toFixed(1)}%)`)
+      c.green(`${successPct.toFixed(1)}% `)
     ns.tprint(header)
     ns.tprint(`  (avg ${avgDuration.toFixed(2)} ms | total ${s.duration.toFixed(2)} ms) `)
     ns.tprint(counts)

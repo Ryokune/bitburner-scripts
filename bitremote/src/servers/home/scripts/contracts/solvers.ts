@@ -1,4 +1,5 @@
 import { CodingContractSignatures } from "@ns"
+import { parse } from "path";
 type ContractResult<T> = [success: boolean, result: T]
 
 type ContractFunctions = Partial<{
@@ -8,7 +9,6 @@ type ContractFunctions = Partial<{
 }>
 
 const SOLVERS: ContractFunctions = {
-
   "Spiralize Matrix"(input, ns) {
     // https://www.geeksforgeeks.org/dsa/print-a-given-matrix-in-spiral-form/
     const m = input.length;
@@ -307,7 +307,116 @@ const SOLVERS: ContractFunctions = {
   },
   "Total Ways to Sum II"([target, set], ns) {
     return [true, getTotalWaysToSum(target, set)]
+  },
+  "Compression II: LZ Decompression"(input, ns) {
+    let decompressed = ""
+
+    let isLiteral = false;
+    for (let i = 0; i < input.length;) {
+      isLiteral = !isLiteral;
+
+      const length = parseInt(input[i])
+      i++;
+      if (length <= 0) continue;
+
+      if (isLiteral) {
+        if (length > 0) {
+          decompressed += input.substring(i, i + length);
+          i += length;
+        }
+        continue
+      }
+
+      const offset = parseInt(input[i])
+      i++;
+      for (let j = 0; j < length; j++) {
+        decompressed += decompressed[decompressed.length - offset];
+      }
+    }
+    return [true, decompressed]
+  },
+  "Proper 2-Coloring of a Graph": function([verticies, edges], ns) {
+    const colors = Array(verticies).fill(-1)
+    const adjecent = Array.from({ length: verticies }, () => new Set<number>())
+
+    for (const [u, v] of edges) {
+      adjecent[u].add(v)
+      adjecent[v].add(u)
+    }
+
+    for (let i = 0; i < verticies; i++) {
+      if (colors[i] !== -1) continue
+      colors[i] = 0
+
+      const queue = [i]
+      while (queue.length > 0) {
+        const u = queue.shift()!;
+        for (const v of adjecent[u]) {
+          if (colors[v] === -1) {
+            colors[v] = 1 - colors[u];
+            queue.push(v);
+          } else if (colors[v] === colors[u]) {
+            return [true, []];
+          }
+        }
+      }
+    }
+    return [true, colors]
+  },
+  "Find All Valid Math Expressions": function([numStr, target], ns) {
+    //taken from source. dont wanna figure this one out rn
+    function helper(
+      res: string[],
+      path: string,
+      num: string,
+      target: number,
+      pos: number,
+      evaluated: number,
+      multed: number,
+    ): void {
+      if (pos === num.length) {
+        if (target === evaluated) {
+          res.push(path);
+        }
+        return;
+      }
+
+      for (let i = pos; i < num.length; ++i) {
+        if (i != pos && num[pos] == "0") {
+          break;
+        }
+        const cur = parseInt(num.substring(pos, i + 1));
+
+        if (pos === 0) {
+          helper(res, path + cur, num, target, i + 1, cur, cur);
+        } else {
+          helper(res, path + "+" + cur, num, target, i + 1, evaluated + cur, cur);
+          helper(res, path + "-" + cur, num, target, i + 1, evaluated - cur, -cur);
+          helper(res, path + "*" + cur, num, target, i + 1, evaluated - multed + multed * cur, multed * cur);
+        }
+      }
+    }
+    const res: string[] = []
+    helper(res, "", numStr, target, 0, 0, 0)
+    return [true, res]
   }
+  // "Compression III: LZ Compression"(input, ns) {
+  //   const n = input.length
+  //   let dp: [number, string][] = Array.from({ length: input.length + 1 }, () => [Infinity, ""]);
+  //   dp[0] = [0, ""];
+  //   for (let i = 0; i <= n; i++) {
+  //     if (dp[i][0] === Infinity) continue;
+  //
+  //     for (let L = 1; L <= 9 && i + L <= n; L++) {
+  //       let nextStr = dp[i][1] + L + input.substring(i, i + L);
+  //     }
+  //   }
+  //   return [false, ""]
+  // },
+  // "Compression I: RLE Compression"(input, ns) {
+  //   return [false, ""]
+  // }
+
 }
 
 export default SOLVERS
@@ -363,7 +472,6 @@ function getUniquePathsOfGrid(grid: (0 | 1)[][]) {
       }
     }
   }
-
   return dp[rows - 1][cols - 1];
 }
 
