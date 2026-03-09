@@ -281,12 +281,13 @@ function ServerTable({ ns, hosts }: ServerTableProps) {
           tableLayout: "fixed",
           width: "100%",
           fontFamily: "monospace",
-          borderCollapse: "collapse",
+          borderCollapse: "separate",
+          borderSpacing: 0
         }}
       >
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} style={{ borderBottom: "2px solid #444" }}>
+            <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => <HeaderCell header={header} sort={header.column.getIsSorted()} />)}
             </tr>
           ))}
@@ -318,9 +319,15 @@ function ServerTable({ ns, hosts }: ServerTableProps) {
 const HeaderCell = React.memo(function({ header, sort }: { header: Header<ServerRow, unknown>, sort: boolean | SortDirection }) {
   return (
     <th
+
       key={header.id}
       colSpan={header.colSpan}
       style={{
+        boxShadow: "0 1px 0 rgba(255,255,255,0.15)",
+        position: "sticky",
+        top: -1,
+        background: "#000", // required so rows don't show through
+        zIndex: 1,
         textAlign: header.column.columnDef.meta?.align ?? "left",
         padding: "4px 8px",
         color: "#aaa",
