@@ -2,6 +2,7 @@
 import { calculateFitness, getHosts } from "@home/lib/main"
 import { NetscriptPort } from "@ns"
 import PORTS from "@home/lib/ports"
+import { c, table } from "@home/lib/text.ui"
 interface Server {
   hack: number,
   weaken: number,
@@ -65,8 +66,32 @@ export async function main(ns: NS) {
     // drainPort(3, "grow")
 
     // totally readable yea
-    Array.from(H).sort((a, b) => (a[1].grow + a[1].hack + a[1].weaken) - (b[1].grow + b[1].hack + b[1].weaken)).forEach((v) => ns.print(`${v[0]}: ${Object.entries(v[1])}`))
+    const rows = [
+      [
+        c.cyan.bold("Server"),
+        c.green.bold("Hack"),
+        c.yellow.bold("Grow"),
+        c.blue.bold("Weaken"),
+        c.magenta.bold("Total")
+      ]
+    ]
 
+    for (const [name, s] of Array.from(H)
+      .sort((a, b) =>
+        (a[1].hack + a[1].grow + a[1].weaken) -
+        (b[1].hack + b[1].grow + b[1].weaken)
+      )) {
+
+      rows.push([
+        name,
+        `${s.hack}`,
+        `${s.grow}`,
+        `${s.weaken}`,
+        `${s.hack + s.grow + s.weaken}`
+      ])
+    }
+
+    ns.print(table(rows))
     const HOSTS = getHosts(ns, h => h != "home" && ns.hasRootAccess(h)).sort((a, b) => getAvailableRam(b) - (getAvailableRam(a)))
     const DATA = []
     for (const HOST of HOSTS) {
