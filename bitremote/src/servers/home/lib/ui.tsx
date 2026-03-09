@@ -1,4 +1,4 @@
-import type { FocusEventHandler, InputEvent, InputEventHandler, ReactNode } from "react";
+import type { FocusEventHandler, ReactNode } from "react";
 import type { ReactNode as NSReactNode } from "@ns";
 
 export function interpolateColor(c1: string, c2: string, t: number) {

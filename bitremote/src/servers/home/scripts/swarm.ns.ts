@@ -22,21 +22,24 @@ const SCRIPTS = [
 // TODO: Create UI for this.
 export async function main(ns: NS) {
   // Clear any excess data in the HACK/GROW/WEAKEN ports.
-  // I should create a port lib soon for more flexibility.
   ns.clearPort(PORTS.HACK_PORT);
   ns.clearPort(PORTS.WEAKEN_PORT)
   ns.clearPort(PORTS.GROW_PORT);
+
   ns.disableLog("ALL")
   ns.ramOverride(7.75)
   ns.ui.openTail()
+
   ns.atExit(() => {
     ns.ui.closeTail()
   })
 
   const H = new Map<string, Server>()
+
   function getAvailableRam(host: string) {
     return ns.getServerMaxRam(host) - ns.getServerUsedRam(host)
   }
+
   function drainPortHandle(port: NetscriptPort, field: "hack" | "grow" | "weaken") {
     while (port.peek() !== "NULL PORT DATA") {
       const [target, threads] = port.read()
@@ -45,12 +48,13 @@ export async function main(ns: NS) {
       }
     }
   }
+
   const hack_port = ns.getPortHandle(PORTS.HACK_PORT)
   const weaken_port = ns.getPortHandle(PORTS.WEAKEN_PORT)
   const grow_port = ns.getPortHandle(PORTS.GROW_PORT)
+
   while (true) {
     ns.clearLog()
-
 
     if (!hack_port || !weaken_port || !grow_port) {
       ns.print(`COULD NOT GET PORTS!`)
@@ -58,14 +62,11 @@ export async function main(ns: NS) {
       await ns.sleep(5000)
       continue
     }
+
     drainPortHandle(hack_port, "hack")
     drainPortHandle(weaken_port, "weaken")
     drainPortHandle(grow_port, "grow")
-    // drainPort(1, "hack")
-    // drainPort(2, "weaken")
-    // drainPort(3, "grow")
 
-    // totally readable yea
     const rows = [
       [
         c.cyan.bold("Server"),
@@ -90,13 +91,13 @@ export async function main(ns: NS) {
         `${s.hack + s.grow + s.weaken}`
       ])
     }
-
     ns.print(table(rows))
+
     const HOSTS = getHosts(ns, h => h != "home" && ns.hasRootAccess(h)).sort((a, b) => getAvailableRam(b) - (getAvailableRam(a)))
     const DATA = []
     for (const HOST of HOSTS) {
       const fitness = calculateFitness(ns, HOST)
-      if (fitness == -1) continue
+      if (fitness == -Infinity) continue
       if (!H.has(HOST)) {
         H.set(HOST, {
           hack: 0,
@@ -156,7 +157,6 @@ export async function main(ns: NS) {
       targetThreads = Math.max(0, targetThreads)
       if (targetThreads === 0) continue
 
-      // Distribute threads across swarm hosts
       for (const swarmHost of HOSTS) {
         ns.scp(SCRIPTS, swarmHost, "home")
         //ns.tprint(`${script} ${targetThreads} ${target}`)

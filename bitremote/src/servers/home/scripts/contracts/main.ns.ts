@@ -1,7 +1,6 @@
 import { getHosts } from "@home/lib/main"
 import SOLVERS from "./solvers"
 import { c } from "@home/lib/text.ui"
-import { CodingContractSignatures } from "@ns"
 
 export async function main(ns: NS) {
   const HOSTS = getHosts(ns, h => ns.ls(h).length > 0 && h != "home")
