@@ -13,7 +13,6 @@ export async function main(ns: NS) {
       ns.tprint(`${HOST}: ${FILE} ${TYPE}`)
       ns.tprint(DATA)
       if (SOLVERS[TYPE]) {
-        ns.tprint('\n\n')
         const [USE, SOLUTION] = SOLVERS[TYPE](DATA as never, ns)
         if (USE) {
           const SUCCESS_STRING = ns.codingcontract.attempt(SOLUTION, FILE, HOST)
