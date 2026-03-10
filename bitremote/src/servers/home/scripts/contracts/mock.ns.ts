@@ -1,9 +1,8 @@
 import { color, FG } from "@home/lib/colors"
-import solvers from "./solvers"
 import { c, progress } from "@home/lib/text.ui"
-import { CodingContractName } from "@ns"
-import { defineFlags, Flags, getFlagAuto, getFlags } from "@home/lib/main"
-
+import { type CodingContractName } from "@ns"
+import { defineFlags, getFlagAuto, getFlags } from "@home/lib/main"
+import solvers from "./solvers"
 const FLAGS = defineFlags([
   ["repeat", 1],
   ["bench", 1],
@@ -23,7 +22,6 @@ type SolverStats = {
 
 export async function main(ns: NS) {
   const flags = getFlags(ns, FLAGS)
-
   const bench = flags.bench
   const repeat = flags.repeat
   const contracts = flags.contracts as `${CodingContractName}`[]
@@ -104,7 +102,7 @@ export async function main(ns: NS) {
 }
 
 
-export function autocomplete(data: AutocompleteData, args: string[]): string[] {
+export function autocomplete(data: AutocompleteData, args: ScriptArg[]): string[] {
   data.flags(FLAGS)
   return getFlagAuto(args, FLAGS) ?? []
 }

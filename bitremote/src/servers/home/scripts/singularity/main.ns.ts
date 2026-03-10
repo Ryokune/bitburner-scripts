@@ -82,7 +82,7 @@ async function start(ns: NS, looped = false) {
     })
 }
 
-export function autocomplete(data: AutocompleteData, args: string[]): string[] {
+export function autocomplete(data: AutocompleteData, args: ScriptArg[]): string[] {
   data.flags(FLAGS)
   return getFlagAuto(args, FLAGS) ?? []
 }

@@ -153,29 +153,32 @@ const SOLVERS: ContractFunctions = {
     return [true, solution]
   },
   "HammingCodes: Encoded Binary to Integer"(input, ns) {
-    const bits = input.split('').map(Number);
-    const n = bits.length;
+    const hammingBits = input.split('').map(Number);
+    const n = hammingBits.length;
     let errorIdx = 0;
 
+    // Look for any fixable errors
     for (let p = 1; p < n; p <<= 1) {
       let parity = 0;
       for (let i = p; i < n; i += 2 * p) {
         for (let k = 0; k < p && i + k < n; k++) {
-          parity ^= bits[i + k];
+          parity ^= hammingBits[i + k];
         }
       }
 
       if (parity !== 0) errorIdx += p;
     }
 
+    // Flip Idx if it can be identified
     if (errorIdx > 0 && errorIdx < n) {
-      bits[errorIdx] ^= 1;
+      hammingBits[errorIdx] ^= 1;
     }
 
+    // Reconstruct final data
     const dataBits = [];
     for (let i = 1; i < n; i++) {
       if ((i & (i - 1)) !== 0) {
-        dataBits.push(bits[i]);
+        dataBits.push(hammingBits[i]);
       }
     }
 
@@ -188,26 +191,31 @@ const SOLVERS: ContractFunctions = {
     while ((1 << r) < m + r + 1) r++;
 
     const totalLength = m + r + 1;
-    const dataBits = new Array(totalLength).fill(0);
+    const hammingBits = new Array<number>(totalLength).fill(0);
     let j = 0;
+
+    // Place the databits.
     for (let i = 1; i < totalLength; i++) {
       if ((i & (i - 1)) !== 0) {
-        dataBits[i] = Number(binary[j++]);
+        hammingBits[i] = Number(binary[j++]);
       }
     }
+
+    // Place the parity bits
     for (let p = 1; p < totalLength; p <<= 1) {
       let parity = 0
       for (let i = p; i < totalLength; i += 2 * p) {
         for (let k = 0; k < p && i + k < totalLength; k++) {
-          parity ^= dataBits[i + k];
+          parity ^= hammingBits[i + k];
         }
       }
 
-      dataBits[p] = parity;
+      hammingBits[p] = parity;
     }
 
-    dataBits[0] = dataBits.reduce((a, b) => a ^ b, 0);
-    return [true, dataBits.join("")]
+    // Set the [0,0] bit.
+    hammingBits[0] = hammingBits.reduce((a, b) => a ^ b, 0);
+    return [true, hammingBits.join("")]
   },
   "Unique Paths in a Grid I"([rows, columns], ns) {
     return [true, getUniquePathsOfGrid(Array.from({ length: rows }, () => Array(columns).fill(0)))]
@@ -399,7 +407,17 @@ const SOLVERS: ContractFunctions = {
     const res: string[] = []
     helper(res, "", numStr, target, 0, 0, 0)
     return [true, res]
-  }
+  },
+  "Subarray with Maximum Sum": function(input, ns) {
+    const n = input.length
+    let max = input[0]
+    let current_max = input[0]
+    for (let i = 1; i < n; i++) {
+      current_max = Math.max(input[i], current_max + input[i])
+      max = Math.max(current_max, max)
+    }
+    return [true, max]
+  },
   // "Compression III: LZ Compression"(input, ns) {
   //   const n = input.length
   //   let dp: [number, string][] = Array.from({ length: input.length + 1 }, () => [Infinity, ""]);

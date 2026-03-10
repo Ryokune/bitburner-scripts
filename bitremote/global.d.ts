@@ -1,7 +1,8 @@
-import type { NS as _NS, AutocompleteData as _AutocompleteData } from '@ns';
+import type { NS as _NS, AutocompleteData as _AutocompleteData, ScriptArg as _ScriptArg } from '@ns';
 
 declare global {
   type AutocompleteData = _AutocompleteData
+  type ScriptArg = _ScriptArg
   type NS = _NS;
   // Shuts up about UMD Diagnostics
   type React = typeof import("react")

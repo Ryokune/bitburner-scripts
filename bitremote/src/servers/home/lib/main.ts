@@ -13,7 +13,7 @@ export interface Host {
   children: string[];
 }
 
-export function getFlagAuto(args: string[], schema: Flags): any[] | null {
+export function getFlagAuto(args: ScriptArg[], schema: Flags): any[] | null {
   const last = args.length > 0 ? args[args.length - 1] : "";
   const prev = last ? args[args.length - 2] : "";
   if (!last) return null;
@@ -36,7 +36,9 @@ type MapFlags<T extends Flags> = {
   K[1] extends string[] ? string[] :
   K[1] extends string ? string :
   K[1]
-};
+} & {
+  _: ScriptArg[];
+};;
 
 export const getFlags = <T extends Flags>(ns: NS, flags: T) => ns.flags(flags) as MapFlags<T>
 export const defineFlags = <const T extends Flags>(f: T) => f satisfies T;

@@ -49,7 +49,7 @@ TIPS
         export async function main(ns: NS) {
         }
         
-        export function autocomplete(data: AutocompleteData, args: string[]): string[] {
+        export function autocomplete(data: AutocompleteData, args: ScriptArg[]): string[] {
           return []
         }
           ]]
@@ -76,7 +76,7 @@ TIPS
       export async function main(ns: NS) {
       }
       
-      export function autocomplete(data: AutocompleteData, args: string[]): string[] {
+      export function autocomplete(data: AutocompleteData, args: ScriptArg[]): string[] {
         return []
       }
         ]]
