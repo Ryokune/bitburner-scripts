@@ -57,7 +57,13 @@ export const CustomInput = ({ ...rest }: CustomInputProps) => {
 };
 
 
-export function CreateWindow(ns: NS, app: () => NSReactNode, title: string, width: number, height: number, x: number, y: number): void {
+export function CreateWindow(ns: NS, app: () => NSReactNode, title: string, width: number, height: number, x: number, y: number, allowMultiple = false): void {
+  if (!allowMultiple) {
+    const c = ns.getRunningScript(ns.self().filename)
+    if (c && c.pid != ns.pid) {
+      ns.exit()
+    }
+  }
   ns.disableLog("ALL");
   ns.ui.openTail();
   ns.ui.setTailTitle(title);
