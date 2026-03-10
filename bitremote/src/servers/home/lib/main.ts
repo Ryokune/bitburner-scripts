@@ -13,8 +13,20 @@ export interface Host {
   children: string[];
 }
 
+export function getFlagAuto(args: string[], schema: Flags): any[] | null {
+  const last = args.length > 0 ? args[args.length - 1] : "";
+  const prev = last ? args[args.length - 2] : "";
+  if (!last) return null;
+  for (const [name, options] of schema) {
+    const flagName = `--${name}`;
+    if ((last === flagName || prev === flagName)) {
+      return Array.isArray(options) ? options.map(v => `"${v}"`) : typeof (options) == 'boolean' ? ["true", "false"] : [options];
+    }
+  }
+  return null;
+}
 
-type Flags = Array<[string, boolean | number | string | string[]]>;
+export type Flags = Array<[string, boolean | number | string | string[]]>;
 
 // is there a better way to do this wth.
 type MapFlags<T extends Flags> = {

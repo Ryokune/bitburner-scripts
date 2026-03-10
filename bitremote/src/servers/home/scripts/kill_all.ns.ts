@@ -1,4 +1,4 @@
-import { defineFlags, getFlags, getHosts } from "@home/lib/main"
+import { defineFlags, getFlagAuto, getFlags, getHosts } from "@home/lib/main"
 const FLAGS = defineFlags([
   ["exclude", [""]]
 ])
@@ -13,6 +13,6 @@ export async function main(ns: NS) {
 
 export function autocomplete(data: AutocompleteData, args: string[]): string[] {
   data.flags(FLAGS)
-  return []
+  return getFlagAuto(args, FLAGS) ?? []
 }
 

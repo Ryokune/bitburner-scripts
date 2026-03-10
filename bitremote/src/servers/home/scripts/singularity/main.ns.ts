@@ -1,4 +1,4 @@
-import { defineFlags, getAvailableRam, getFlags, getScripts } from "@home/lib/main"
+import { defineFlags, getAvailableRam, getFlagAuto, getFlags, getScripts } from "@home/lib/main"
 
 const CLOSE_AT = 10;
 
@@ -84,5 +84,5 @@ async function start(ns: NS, looped = false) {
 
 export function autocomplete(data: AutocompleteData, args: string[]): string[] {
   data.flags(FLAGS)
-  return []
+  return getFlagAuto(args, FLAGS) ?? []
 }

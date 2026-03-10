@@ -2,7 +2,7 @@ import { color, FG } from "@home/lib/colors"
 import solvers from "./solvers"
 import { c, progress } from "@home/lib/text.ui"
 import { CodingContractName } from "@ns"
-import { defineFlags, getFlags } from "@home/lib/main"
+import { defineFlags, Flags, getFlagAuto, getFlags } from "@home/lib/main"
 
 const FLAGS = defineFlags([
   ["repeat", 1],
@@ -103,7 +103,8 @@ export async function main(ns: NS) {
   }
 }
 
+
 export function autocomplete(data: AutocompleteData, args: string[]): string[] {
   data.flags(FLAGS)
-  return []
+  return getFlagAuto(args, FLAGS) ?? []
 }
