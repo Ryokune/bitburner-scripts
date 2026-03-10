@@ -23,7 +23,7 @@ import FileTable from "./components/FileTable"
 export async function main(ns: NS) {
   CreateWindow(ns, () => <ServerTable ns={ns} hosts={getHosts(ns)} />, "Hosts", 1200, 500, 0, 0)
 
-  while (ns.getRunningScript()?.tailProperties !== null) {
+  while (ns.self().tailProperties !== null) {
     await ns.asleep(500)
   }
 }

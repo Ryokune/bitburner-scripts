@@ -4,7 +4,7 @@ import { App } from "./App"
 export async function main(ns: NS) {
   CreateWindow(ns, () => <App ns={ns} />, "Hosts", 1200, 500, 0, 0)
 
-  while (ns.getRunningScript()?.tailProperties !== null) {
+  while (ns.self().tailProperties !== null) {
     await ns.asleep(500)
   }
 }

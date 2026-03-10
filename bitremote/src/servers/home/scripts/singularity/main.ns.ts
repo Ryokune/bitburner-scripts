@@ -25,7 +25,7 @@ async function start(ns: NS, looped = false) {
 
   for (const script of getScripts(ns, "home", "./scripts")) {
     const name = script.split("/").pop()
-    let current_script = ns.getRunningScript()!
+    let current_script = ns.self()
     if (name?.startsWith("_")) continue
 
     const ram_cost = ns.getScriptRam(script)
@@ -48,7 +48,7 @@ async function start(ns: NS, looped = false) {
     }
     ns.print(`Running ${script.split("/").slice(-2).join("/")} with PID ${PID}`)
     while (ns.isRunning(PID)) {
-      current_script = ns.getRunningScript()!
+      current_script = ns.self()
       if (current_script.tailProperties && ns.getScriptLogs(PID).length > 0) {
         ns.ui.openTail(PID)
         ns.ui.moveTail(

@@ -18,7 +18,7 @@ export async function main(ns: NS) {
   ns.ui.moveTail(0, 0)
   const hosts = getHosts(ns)
   ns.printRaw(<ServerTable ns={ns} hosts={hosts} />)
-  while (ns.getRunningScript()?.tailProperties !== null) {
+  while (ns.self().tailProperties !== null) {
     await ns.asleep(500)
   }
 }

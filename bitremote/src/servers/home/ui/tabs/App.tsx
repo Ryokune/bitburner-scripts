@@ -8,7 +8,7 @@ interface AppProps {
 const OFFSET = 10
 
 const move = (ns: NS, current: RunningScript) => {
-  const holder = ns.getRunningScript()
+  const holder = ns.self()
   if (!holder?.tailProperties) return
 
   const { x, y, width, height } = holder.tailProperties
@@ -54,7 +54,7 @@ export const App: React.FC<AppProps> = ({ ns }) => {
       ns.ui.openTail(currentTab);
       await ns.asleep(0)
       const script = ns.getRunningScript(currentTab);
-      const holder = ns.getRunningScript()?.tailProperties;
+      const holder = ns.self().tailProperties
       const targetW = savedWidth.current ?? script?.tailProperties?.width ?? 0;
 
       ns.ui.resizeTail(targetW, holder?.height ?? 0, currentTab);

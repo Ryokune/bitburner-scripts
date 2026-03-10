@@ -1,5 +1,5 @@
 export async function main(ns: NS) {
-  const script = ns.getRunningScript()!
+  const script = ns.self()
   ns.disableLog("ALL")
 
   ns.ui.openTail()
@@ -9,7 +9,7 @@ export async function main(ns: NS) {
   ns.printRaw("")
 
   ns.atExit(() => ns.ui.closeTail());
-  while (ns.getRunningScript()?.tailProperties !== null) {
+  while (ns.self().tailProperties !== null) {
     await ns.asleep(500);
   }
 
