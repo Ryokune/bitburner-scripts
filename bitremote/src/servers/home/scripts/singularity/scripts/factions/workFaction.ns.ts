@@ -14,6 +14,8 @@ export async function main(ns: NS) {
   let lowest_cost = Infinity
 
   for (const faction of factions) {
+    // remove this later
+    if (faction == "Volhaven") continue
     for (const augmentation of ns.singularity.getAugmentationsFromFaction(faction)) {
 
       if (augmentation === "NeuroFlux Governor") continue

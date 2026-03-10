@@ -12,7 +12,22 @@ export interface Host {
   parent?: string;
   children: string[];
 }
-export type Flags = Array<[string, boolean | number | string | string[]]>;
+
+
+type Flags = Array<[string, boolean | number | string | string[]]>;
+
+// is there a better way to do this wth.
+type MapFlags<T extends Flags> = {
+  [K in T[number]as K[0]]:
+  K[1] extends number ? number :
+  K[1] extends boolean ? boolean :
+  K[1] extends string[] ? string[] :
+  K[1] extends string ? string :
+  K[1]
+};
+
+export const getFlags = <T extends Flags>(ns: NS, flags: T) => ns.flags(flags) as MapFlags<T>
+export const defineFlags = <const T extends Flags>(f: T) => f satisfies T;
 
 export function getContracts(ns: NS, host: string) {
   return ns.ls(host).filter(v => v.split(".")[0] === "cct")

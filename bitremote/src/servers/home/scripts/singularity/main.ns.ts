@@ -1,18 +1,16 @@
-import { Flags, getAvailableRam, getScripts } from "@home/lib/main"
+import { defineFlags, getAvailableRam, getFlags, getScripts } from "@home/lib/main"
 
 const CLOSE_AT = 10;
 
-const FLAGS: Flags = [
+const FLAGS = defineFlags([
   ["loop", false]
-];
+])
 
 export async function main(ns: NS) {
   ns.disableLog("ALL")
   ns.ui.openTail()
   ns.ui.moveTail(100, 0)
-
-  const flags = ns.flags(FLAGS)
-
+  const flags = getFlags(ns, FLAGS)
   if (flags.loop) {
     while (true) {
       await start(ns, true)

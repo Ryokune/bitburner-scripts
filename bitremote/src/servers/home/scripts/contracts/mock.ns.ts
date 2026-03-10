@@ -1,12 +1,14 @@
 import { color, FG } from "@home/lib/colors"
 import solvers from "./solvers"
-import { Flags } from "@home/lib/main"
 import { c, progress } from "@home/lib/text.ui"
+import { CodingContractName } from "@ns"
+import { defineFlags, getFlags } from "@home/lib/main"
 
-const FLAGS: Flags = [
+const FLAGS = defineFlags([
   ["repeat", 1],
   ["bench", 1],
-]
+  ["contracts", Object.keys(solvers)]
+])
 
 type SolverStats = {
   success: number
@@ -20,23 +22,26 @@ type SolverStats = {
 }
 
 export async function main(ns: NS) {
-  const flags = ns.flags(FLAGS)
-  const bench = flags.bench as number
-  const repeat = flags.repeat as number
+  const flags = getFlags(ns, FLAGS)
 
+  const bench = flags.bench
+  const repeat = flags.repeat
+  const contracts = flags.contracts as `${CodingContractName}`[]
+  ns.codingcontract.getContractTypes()
   const stats: Record<string, SolverStats> = {}
   for (let r = 0; r < repeat; r++) {
     ns.tprint(`Generating ${progress(r + 1, repeat)}`)
-    for (const [type, solver] of Object.entries(solvers)) {
-      if (!stats[type]) {
-        stats[type] = {
+    for (const contract of contracts) {
+      const solver = solvers[contract]!
+      if (!stats[contract]) {
+        stats[contract] = {
           success: 0,
           fail: 0,
           duration: 0,
           fails: [],
         }
       }
-      const dummy = ns.codingcontract.createDummyContract(type)
+      const dummy = ns.codingcontract.createDummyContract(contract)
       const data = ns.codingcontract.getData(dummy)
       const desc = ns.codingcontract.getDescription(dummy)
 
@@ -51,7 +56,7 @@ export async function main(ns: NS) {
       const duration = performance.now() - start
       const success = ns.codingcontract.attempt(result, dummy)
 
-      const s = stats[type]
+      const s = stats[contract]
       s.duration += duration
       s.desc ??= desc
 
@@ -86,7 +91,7 @@ export async function main(ns: NS) {
     for (const f of s.fails) {
       ns.tprint(
         color(
-          `-- ${JSON.stringify(f.data)} => ${JSON.stringify(f.result)}`,
+          `-- ${f.data} => ${f.result}`,
           FG.red
         )
       )
