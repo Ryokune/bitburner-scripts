@@ -26,6 +26,7 @@ const move = (ns: NS, current: RunningScript) => {
 
 
 export const App: React.FC<AppProps> = ({ ns }) => {
+  const [colors, setColors] = React.useState(ns.ui.getTheme())
   const [runningScripts, setRunningScripts] = React.useState<number[]>([])
   const [currentTab, setCurrentTab] = React.useState<number | null>()
   const savedWidth = React.useRef<number>()
@@ -63,6 +64,7 @@ export const App: React.FC<AppProps> = ({ ns }) => {
     }
 
     const interval = setInterval(() => {
+      setColors(ns.ui.getTheme())
       const nextPids = getAllRunningProccesses(ns).map(v => v.pid);
       setRunningScripts(prev => (prev.length === nextPids.length ? prev : nextPids));
       if (currentTab && !nextPids.includes(currentTab)) {
@@ -112,8 +114,8 @@ export const App: React.FC<AppProps> = ({ ns }) => {
       <style>
         {`
           button {
-            background-color: #000000;
-            color: rgb(0, 204, 0);
+            background-color: ${colors.backgroundsecondary};
+            color: ${colors.primary};
             border: 1px solid #333744;
             border-radius: 4px;
             padding: 0.5rem 1rem;

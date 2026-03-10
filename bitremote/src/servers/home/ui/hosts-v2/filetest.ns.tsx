@@ -20,6 +20,7 @@ import type {
 import { calculateFitness, getHosts } from "@home/lib/main"
 import { getMoneyColor, getRamColor, getSecurityColor } from "./helpers"
 import { CreateWindow, CustomInput, flexRender } from "@home/lib/ui"
+import { UserInterfaceTheme } from "@ns"
 
 export async function main(ns: NS) {
   CreateWindow(ns,
@@ -82,12 +83,15 @@ const rowsEqual = (a: ServerRow[], b: ServerRow[]) => {
   return true
 }
 function ServerTable({ ns, hosts }: ServerTableProps) {
+
+  const [colors, setColors] = React.useState(ns.ui.getTheme())
   const [data, setData] = React.useState<ServerRow[]>([])
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState<string>("")
 
   React.useEffect(() => {
     const update = () => {
+      setColors(ns.ui.getTheme())
       setData(prev => {
         const newRows = hosts.map((name, i) => {
           const s = ns.getServer(name)
@@ -130,7 +134,7 @@ function ServerTable({ ns, hosts }: ServerTableProps) {
           const color = getMoneyColor(ratio)
           return (<>
             <span
-              style={{ color: "#00cc66", cursor: row.getCanExpand() ? "pointer" : "select" }}
+              style={{ color: colors.primary, cursor: row.getCanExpand() ? "pointer" : "select" }}
               onClick={row.getToggleExpandedHandler()}
             >
               {row.getIsExpanded() ? "▼ " : row.getCanExpand() ? "▶ " : ""}{name}
@@ -234,7 +238,7 @@ function ServerTable({ ns, hosts }: ServerTableProps) {
         meta: { align: "right" },
       }),
     ],
-    [ns]
+    [ns, colors]
   )
   const renderSubComponent = ({ row }: { row: Row<ServerRow> }) => {
     return (
@@ -288,7 +292,7 @@ function ServerTable({ ns, hosts }: ServerTableProps) {
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => <HeaderCell header={header} sort={header.column.getIsSorted()} />)}
+              {headerGroup.headers.map((header) => <HeaderCell colors={colors} header={header} sort={header.column.getIsSorted()} />)}
             </tr>
           ))}
         </thead>
@@ -316,7 +320,7 @@ function ServerTable({ ns, hosts }: ServerTableProps) {
 
 // Probably better to put the state handle thing in the header: () thing, so its "decoupled"
 // idfk how tanstack is supposed to be used lmao.
-const HeaderCell = React.memo(function({ header, sort }: { header: Header<ServerRow, unknown>, sort: boolean | SortDirection }) {
+const HeaderCell = React.memo(function({ header, sort, colors }: { header: Header<ServerRow, unknown>, sort: boolean | SortDirection, colors: UserInterfaceTheme }) {
   return (
     <th
 
@@ -326,11 +330,11 @@ const HeaderCell = React.memo(function({ header, sort }: { header: Header<Server
         boxShadow: "0 1px 0 rgba(255,255,255,0.15)",
         position: "sticky",
         top: -1,
-        background: "#000", // required so rows don't show through
+        background: colors.backgroundsecondary, // required so rows don't show through
         zIndex: 1,
         textAlign: header.column.columnDef.meta?.align ?? "left",
         padding: "4px 8px",
-        color: "#aaa",
+        color: colors.primary,
         fontWeight: "bold",
         cursor: header.column.getCanSort() ? "pointer" : "default"
       }}
@@ -349,7 +353,7 @@ const HeaderCell = React.memo(function({ header, sort }: { header: Header<Server
     </th>
   )
 }, (prev, next) => prev.header.column.id === next.header.column.id &&
-  prev.sort == next.sort)
+  prev.sort == next.sort && prev.colors.backgroundsecondary == next.colors.backgroundsecondary && prev.colors.primary == next.colors.primary)
 
 const RowCell = ({ cell }: { cell: Cell<ServerRow, unknown> }) => {
   return (
