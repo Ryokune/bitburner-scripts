@@ -29,6 +29,7 @@ export const App: React.FC<AppProps> = ({ ns }) => {
   const [runningScripts, setRunningScripts] = React.useState<number[]>([])
   const [currentTab, setCurrentTab] = React.useState<number | null>()
   const savedWidth = React.useRef<number>()
+  const onExitSet = React.useRef<boolean>()
   const switchTab = (newTab: ProcessInfo) => {
     if (currentTab == newTab.pid) return
     if (currentTab) {
@@ -38,61 +39,61 @@ export const App: React.FC<AppProps> = ({ ns }) => {
     setCurrentTab(newTab.pid)
   }
 
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      const next = getAllRunningProccesses(ns).map(v => v.pid)
-      const set = new Set(next)
-      setRunningScripts(prev => {
-        if (prev.length === next.length)
-          return prev
-        else
-          return next
-      })
-      setCurrentTab(tab => {
-        if (!tab) return null
-        if (!set.has(tab)) {
-          ns.ui.closeTail(tab)
-          return null
-        }
-        if (!ns.getRunningScript(tab)?.tailProperties) return null
-        return tab
-      })
-    }, 500)
-
-    ns.atExit(() => clearInterval(interval), "CLEAN")
-    return () => clearInterval(interval)
-  }, [ns])
 
   React.useEffect(() => {
-    if (!currentTab) return
-    let frame: number
-    async function init() {
-      ns.ui.openTail(currentTab!)
-      await ns.asleep(0)
-      const currentTabData = ns.getRunningScript(currentTab!)?.tailProperties
-      const holderTabData = ns.getRunningScript()?.tailProperties
-      const targetWidth = savedWidth.current ?? currentTabData?.width ?? 0
-      ns.ui.resizeTail(targetWidth, holderTabData?.height ?? 0, currentTab!)
-      ns.ui.moveTail((holderTabData?.x ?? 0) - targetWidth - OFFSET, holderTabData?.y ?? 0, currentTab!)
-      const sync = () => {
-        const currentTabData = ns.getRunningScript(currentTab!)
-        if (!currentTabData) return
-        move(ns, currentTabData)
-        frame = requestAnimationFrame(sync)
+    let frameId: number;
+    const sync = () => {
+      if (currentTab) {
+        const currentTabData = ns.getRunningScript(currentTab);
+        if (currentTabData) move(ns, currentTabData);
+        frameId = requestAnimationFrame(sync);
       }
-      frame = requestAnimationFrame(sync)
-    }
-    init()
+    };
+    const init = async () => {
+      if (!currentTab) return
+      ns.ui.openTail(currentTab);
+      await ns.asleep(0)
+      const script = ns.getRunningScript(currentTab);
+      const holder = ns.getRunningScript()?.tailProperties;
+      const targetW = savedWidth.current ?? script?.tailProperties?.width ?? 0;
 
-    return () => cancelAnimationFrame(frame)
-  }, [currentTab, ns])
+      ns.ui.resizeTail(targetW, holder?.height ?? 0, currentTab);
+      ns.ui.moveTail((holder?.x ?? 0) - targetW - OFFSET, holder?.y ?? 0, currentTab);
+      frameId = requestAnimationFrame(sync);
+    }
+
+    const interval = setInterval(() => {
+      const nextPids = getAllRunningProccesses(ns).map(v => v.pid);
+      setRunningScripts(prev => (prev.length === nextPids.length ? prev : nextPids));
+      if (currentTab && !nextPids.includes(currentTab)) {
+        ns.ui.closeTail(currentTab);
+        setCurrentTab(null);
+      }
+    }, 500);
+
+    if (currentTab) {
+      init()
+    }
+    if (!onExitSet.current) {
+      onExitSet.current = true
+      ns.atExit(() => {
+        clearInterval(interval);
+        cancelAnimationFrame(frameId);
+      }, "CLEANUSEEFFECT");
+    }
+
+    return () => {
+      clearInterval(interval);
+      cancelAnimationFrame(frameId);
+    };
+  }, [ns, currentTab]);
 
   ns.atExit(() => {
     if (!currentTab) return
     if (ns.getRunningScript(currentTab)?.tailProperties) {
       ns.ui.closeTail(currentTab)
     }
-  })
+  }, "closecurrenttab")
 
   return (
     <>
