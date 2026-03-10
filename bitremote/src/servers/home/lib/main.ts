@@ -13,20 +13,53 @@ export interface Host {
   children: string[];
 }
 
+
 export function getFlagAuto(args: ScriptArg[], schema: Flags): any[] | null {
-  const last = args.length > 0 ? args[args.length - 1] : "";
-  const prev = last ? args[args.length - 2] : "";
-  if (!last) return null;
-  for (const [name, options] of schema) {
-    const flagName = `--${name}`;
-    if ((last === flagName || prev === flagName)) {
-      return Array.isArray(options) ? options.map(v => `"${v}"`) : typeof (options) == 'boolean' ? ["true", "false"] : [options];
+  if (args.length === 0) return null;
+  let flagName = "";
+  let flagX = 0;
+
+  // Backtrack the current args and determine the current latest flag.
+  // Of course, this has the limitation of the autocomplete not being correct if you do
+  // myScript --myFlag 1 --otherFlag "..."
+  // And put your cursor to --myFlag, it will still autocomplete what `otherFlag` has as its options. You could potentially get the current cursor position using `document`, but thats your homework if you want that functionality. 
+  for (let i = args.length - 1; i >= 0; i--) {
+    const arg = String(args[i]);
+    if (arg.startsWith("--")) {
+      flagName = arg;
+      flagX = i
+      break;
     }
   }
+
+  // This is a little hacky way to see if we've completed a stringed option.
+  // Since we return array options as arr[v] => `"v"`
+  // args[flagX+1] will return [`"MyValue`, `SpacedThing`] if the string isnt completed yet.
+  // and will be [`MyValue`, `SpacedThing`] once we complete the string.
+  // --flag "MyValue SpacedThing" will make flagName be ""
+  // --flag "MyValue NotComple
+  // ^ this will keep the flagName until you add the final "
+  if (args[flagX + 1]) {
+    flagName = String(args[flagX + 1]).startsWith(`"`) ? flagName : ""
+  }
+  if (!flagName) return null;
+
+  // Finally, return the values. booleans will be "true/false".
+  // Keep in mind that this part is only here incase you just pass in the whole FLAGS array instead of a separate one.
+  // In theory, you can have FLAGS and FLAGS_COMPLETION as two separate things!
+  for (const [name, options] of schema) {
+    if (flagName === `--${name}`) {
+      if (Array.isArray(options)) return options.map(v => `"${v}"`);
+      if (typeof options === 'boolean') return ["true", "false"];
+      return [`${options}`];
+    }
+  }
+
   return null;
 }
 
-export type Flags = Array<[string, boolean | number | string | string[]]>;
+
+export type Flags = [string, string | number | boolean | string[]][]
 
 // is there a better way to do this wth.
 type MapFlags<T extends Flags> = {
