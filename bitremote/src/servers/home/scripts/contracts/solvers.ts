@@ -1,4 +1,5 @@
-import { CodingContractSignatures, CodingContractName } from "@ns"
+import { CodingContractSignatures } from "@ns"
+import { parse } from "path";
 type ContractResult<T> = [success: boolean, result: T]
 
 type ContractFunctions = Partial<{
@@ -8,7 +9,7 @@ type ContractFunctions = Partial<{
 }>
 
 const SOLVERS: ContractFunctions = {
-  [CodingContractName.SpiralizeMatrix](input, ns) {
+  "Spiralize Matrix"(input, ns) {
     // https://www.geeksforgeeks.org/dsa/print-a-given-matrix-in-spiral-form/
     const m = input.length;
     const n = input[0].length;
@@ -52,7 +53,7 @@ const SOLVERS: ContractFunctions = {
     //lmao.
     //return [true, [input[0], input[1].pop(), input[2].pop(), input[2].reverse(), input[1]].flat()]
   },
-  [CodingContractName.FindLargestPrimeFactor](input, ns) {
+  "Find Largest Prime Factor"(input, ns) {
     let largestPrime = -1;
     while (input % 2 === 0) {
       largestPrime = 2;
@@ -69,13 +70,13 @@ const SOLVERS: ContractFunctions = {
     }
     return [true, largestPrime]
   },
-  [CodingContractName.ArrayJumpingGame](input, ns) {
+  "Array Jumping Game"(input, ns) {
     return [true, getMinJumps(input) > 0 ? 1 : 0]
   },
-  [CodingContractName.ArrayJumpingGameII](input, ns) {
+  "Array Jumping Game II"(input, ns) {
     return [true, getMinJumps(input)]
   },
-  [CodingContractName.MinimumPathSumInATriangle](input, ns) {
+  "Minimum Path Sum in a Triangle"(input, ns) {
     const n = input.length
     let dp = input[n - 1]
 
@@ -88,7 +89,7 @@ const SOLVERS: ContractFunctions = {
     }
     return [true, dp[0]]
   },
-  [CodingContractName.EncryptionICaesarCipher]([input, shift], ns) {
+  "Encryption I: Caesar Cipher"([input, shift], ns) {
     return [true, [...input].map(char => {
       const code = char.charCodeAt(0)
       if (code >= 65 && code <= 90) {
@@ -97,7 +98,7 @@ const SOLVERS: ContractFunctions = {
       return char
     }).join('')]
   },
-  [CodingContractName.EncryptionIIVigenereCipher]([input, keyword], ns) {
+  "Encryption II: Vigenère Cipher"([input, keyword], ns) {
     const KEYSTREAM = keyword.repeat(Math.ceil(input.length / keyword.length)).substring(0, input.length)
     return [true, [...input].map((char, index) => {
       const code = char.charCodeAt(0)
@@ -107,19 +108,19 @@ const SOLVERS: ContractFunctions = {
       return char
     }).join('')]
   },
-  [CodingContractName.AlgorithmicStockTraderI](input, ns) {
+  "Algorithmic Stock Trader I"(input, ns) {
     return [true, calculateMaxProfits(input, 1)]
   },
-  [CodingContractName.AlgorithmicStockTraderII](input, ns) {
+  "Algorithmic Stock Trader II"(input, ns) {
     return [true, calculateMaxProfits(input, 100)]
   },
-  [CodingContractName.AlgorithmicStockTraderIII](input, ns) {
+  "Algorithmic Stock Trader III"(input, ns) {
     return [true, calculateMaxProfits(input, 2)]
   },
-  [CodingContractName.AlgorithmicStockTraderIV]([transactions, input], ns) {
+  "Algorithmic Stock Trader IV"([transactions, input], ns) {
     return [true, calculateMaxProfits(input, transactions)]
   },
-  [CodingContractName.SanitizeParenthesesInExpression](expression, ns) {
+  "Sanitize Parentheses in Expression"(expression, ns) {
     if (expression.length === 0) return [true, [""]]
     const queue = [expression];
     const tested = new Set();
@@ -151,7 +152,7 @@ const SOLVERS: ContractFunctions = {
     }
     return [true, solution]
   },
-  [CodingContractName.HammingCodesEncodedBinaryToInteger](input, ns) {
+  "HammingCodes: Encoded Binary to Integer"(input, ns) {
     const hammingBits = input.split('').map(Number);
     const n = hammingBits.length;
     let errorIdx = 0;
@@ -183,7 +184,7 @@ const SOLVERS: ContractFunctions = {
 
     return [true, parseInt(dataBits.join(''), 2)];
   },
-  [CodingContractName.HammingCodesIntegerToEncodedBinary](input, ns) {
+  "HammingCodes: Integer to Encoded Binary"(input, ns) {
     const binary = input.toString(2)
     const m = binary.length
     let r = 0;
@@ -216,13 +217,13 @@ const SOLVERS: ContractFunctions = {
     hammingBits[0] = hammingBits.reduce((a, b) => a ^ b, 0);
     return [true, hammingBits.join("")]
   },
-  [CodingContractName.UniquePathsInAGridI]([rows, columns], ns) {
+  "Unique Paths in a Grid I"([rows, columns], ns) {
     return [true, getUniquePathsOfGrid(Array.from({ length: rows }, () => Array(columns).fill(0)))]
   },
-  [CodingContractName.UniquePathsInAGridII](grid, ns) {
+  "Unique Paths in a Grid II"(grid, ns) {
     return [true, getUniquePathsOfGrid(grid)]
   },
-  [CodingContractName.GenerateIPAddresses](input, ns) {
+  "Generate IP Addresses"(input, ns) {
     const n = input.length
     const result = []
     const isValid = (seg: string) => {
@@ -252,7 +253,7 @@ const SOLVERS: ContractFunctions = {
     }
     return [true, result]
   },
-  [CodingContractName.MergeOverlappingIntervals](input, ns) {
+  "Merge Overlapping Intervals"(input, ns) {
     const sorted = [...input].sort((a, b) => a[0] - b[0]);
     const result = [];
     result.push(sorted[0]);
@@ -269,7 +270,7 @@ const SOLVERS: ContractFunctions = {
     }
     return [true, result]
   },
-  [CodingContractName.ShortestPathInAGrid](input, ns) {
+  "Shortest Path in a Grid"(input, ns) {
     const rows = input.length
     const cols = input[0].length
 
@@ -309,13 +310,13 @@ const SOLVERS: ContractFunctions = {
     }
     return [true, ""]
   },
-  [CodingContractName.TotalWaysToSum](input, ns) {
+  "Total Ways to Sum"(input, ns) {
     return [true, getTotalWaysToSum(input, Array.from({ length: input - 1 }, (_, i) => i + 1))];
   },
-  [CodingContractName.TotalWaysToSumII]([target, set], ns) {
+  "Total Ways to Sum II"([target, set], ns) {
     return [true, getTotalWaysToSum(target, set)]
   },
-  [CodingContractName.CompressionIILZDecompression](input, ns) {
+  "Compression II: LZ Decompression"(input, ns) {
     let decompressed = ""
 
     let isLiteral = false;
@@ -342,7 +343,7 @@ const SOLVERS: ContractFunctions = {
     }
     return [true, decompressed]
   },
-  [CodingContractName.Proper2ColoringOfAGraph]([verticies, edges], ns) {
+  "Proper 2-Coloring of a Graph": function([verticies, edges], ns) {
     const colors = Array(verticies).fill(-1)
     const adjecent = Array.from({ length: verticies }, () => new Set<number>())
 
@@ -370,7 +371,7 @@ const SOLVERS: ContractFunctions = {
     }
     return [true, colors]
   },
-  [CodingContractName.FindAllValidMathExpressions]([numStr, target], ns) {
+  "Find All Valid Math Expressions": function([numStr, target], ns) {
     //taken from source. dont wanna figure this one out rn
     function helper(
       res: string[],
@@ -407,7 +408,7 @@ const SOLVERS: ContractFunctions = {
     helper(res, "", numStr, target, 0, 0, 0)
     return [true, res]
   },
-  [CodingContractName.SubarrayWithMaximumSum](input, ns) {
+  "Subarray with Maximum Sum": function(input, ns) {
     const n = input.length
     let max = input[0]
     let current_max = input[0]
