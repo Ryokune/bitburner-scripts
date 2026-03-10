@@ -46,7 +46,8 @@ type ServerRow = {
   serverGrowth: number
   requiredHackingSkill: number
   hasAdminRights: boolean
-  baseDifficulty: number
+  baseDifficulty: number,
+  backdoorInstalled: boolean,
   subRows?: FileRow[]
 }
 
@@ -68,6 +69,7 @@ function rowEqual(x: ServerRow, y: ServerRow) {
     x.maxRam === y.maxRam &&
     x.hasAdminRights == y.hasAdminRights &&
     x.baseDifficulty == y.baseDifficulty &&
+    x.backdoorInstalled == y.backdoorInstalled &&
     x.requiredHackingSkill === y.requiredHackingSkill
 
 }
@@ -109,6 +111,7 @@ function ServerTable({ ns, hosts }: ServerTableProps) {
             hasAdminRights: s.hasAdminRights,
             requiredHackingSkill: s.requiredHackingSkill ?? 0,
             baseDifficulty: s.baseDifficulty ?? 0,
+            backdoorInstalled: s.backdoorInstalled ?? false,
             subRows: ns.ls(name).map((v) => ({ name: v }))
           }
         })
@@ -215,7 +218,7 @@ function ServerTable({ ns, hosts }: ServerTableProps) {
           const freeRatio = maxRam > 0 ? (maxRam - ramUsed) / maxRam : 1
           const color = maxRam > 0 ? getRamColor(freeRatio) : "#ccc"
           const canRunPrograms = hasAdminRights
-          return <span style={{ color, textDecoration: canRunPrograms ? "none" : "line-through" }}>{`${ramUsed.toFixed(1)} / ${maxRam.toFixed(1)} GB`}</span>
+          return <span style={{ color, textDecoration: canRunPrograms ? "none" : "line-through" }}>{`${ns.formatRam(ramUsed, 2)} / ${ns.formatRam(maxRam, 2)}`}</span>
         },
         meta: { align: "right" },
       }),
@@ -237,6 +240,16 @@ function ServerTable({ ns, hosts }: ServerTableProps) {
         },
         meta: { align: "right" },
       }),
+      columnHelper.accessor("backdoorInstalled", {
+        header: "Backdoor available",
+        enableSorting: true,
+        cell: info => {
+          const { requiredHackingSkill } = info.row.original
+          const canHack = requiredHackingSkill <= ns.getHackingLevel()
+          return (<>{`${info.getValue()}`} ({`${canHack}`})</>)
+        },
+        meta: { align: "right" }
+      })
     ],
     [ns, colors]
   )
