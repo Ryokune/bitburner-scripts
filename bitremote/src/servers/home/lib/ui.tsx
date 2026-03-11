@@ -61,6 +61,11 @@ export function CreateWindow(ns: NS, app: () => NSReactNode, title: string, widt
   if (!allowMultiple) {
     const c = ns.getRunningScript(ns.self().filename)
     if (c && c.pid != ns.pid) {
+      if (!c.tailProperties) {
+        ns.ui.openTail(c.pid)
+        ns.ui.resizeTail(width, height, c.pid);
+        ns.ui.moveTail(x, y, c.pid);
+      }
       ns.exit()
     }
   }
