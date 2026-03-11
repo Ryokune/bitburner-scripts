@@ -1,6 +1,6 @@
 import { color, FG } from "@home/lib/colors"
 import { c, progress } from "@home/lib/text.ui"
-import { type CodingContractName } from "@ns"
+import { CodingContract, type CodingContractName } from "@ns"
 import { defineFlags, getFlagAuto, getFlags } from "@home/lib/main"
 import solvers from "./solvers"
 const FLAGS = defineFlags([
@@ -25,6 +25,14 @@ export async function main(ns: NS) {
   const bench = flags.bench
   const repeat = flags.repeat
   const contracts = flags.contracts as `${CodingContractName}`[]
+  const generated_contracts = Array<string>()
+
+  ns.atExit(() => {
+    for (const contract_name of generated_contracts) {
+      ns.rm(contract_name, "home")
+    }
+  })
+
   ns.codingcontract.getContractTypes()
   const stats: Record<string, SolverStats> = {}
   for (let r = 0; r < repeat; r++) {
@@ -40,6 +48,7 @@ export async function main(ns: NS) {
         }
       }
       const dummy = ns.codingcontract.createDummyContract(contract)
+      generated_contracts.push(dummy)
       const data = ns.codingcontract.getData(dummy)
       const desc = ns.codingcontract.getDescription(dummy)
 
@@ -64,8 +73,6 @@ export async function main(ns: NS) {
         s.fail++
         s.fails.push({ data, result })
       }
-
-      ns.rm(dummy)
       await ns.asleep(0)
     }
   }
