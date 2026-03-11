@@ -1,13 +1,12 @@
+import { getHosts } from "@home/lib/main"
 import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
   createColumnHelper,
+  getCoreRowModel,
+  getFilteredRowModel,
   getSortedRowModel,
   SortingState,
-  getFilteredRowModel,
+  useReactTable
 } from "@tanstack/react-table"
-import { getHosts } from "@home/lib/main"
 import { getMoneyColor, getRamColor, getSecurityColor } from "./helpers"
 
 export async function main(ns: NS) {

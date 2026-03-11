@@ -11,7 +11,7 @@ export async function main(ns: NS) {
     if (!server) break;
     const current_ram = ns.getServerMaxRam(server)
     const pow = Math.log2(current_ram)
-    if (pow == 10) {
+    if (pow >= 10) {
       maxed++
       continue;
     }

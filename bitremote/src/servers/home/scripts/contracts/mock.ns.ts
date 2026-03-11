@@ -1,7 +1,7 @@
 import { color, FG } from "@home/lib/colors"
-import { c, progress } from "@home/lib/text.ui"
-import { CodingContract, type CodingContractName } from "@ns"
 import { defineFlags, getFlagAuto, getFlags } from "@home/lib/main"
+import { c, progress } from "@home/lib/text.ui"
+import { type CodingContractName } from "@ns"
 import solvers from "./solvers"
 const FLAGS = defineFlags([
   ["repeat", 1],

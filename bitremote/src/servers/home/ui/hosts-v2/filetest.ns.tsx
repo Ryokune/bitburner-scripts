@@ -1,26 +1,26 @@
 
 
 import {
-  useReactTable,
-  getCoreRowModel,
   createColumnHelper,
-  getSortedRowModel,
-  getFilteredRowModel,
+  getCoreRowModel,
   getExpandedRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table"
 
 import type {
-  SortingState,
-  Row,
   Cell,
   Header,
+  Row,
   SortDirection,
+  SortingState,
 } from "@tanstack/react-table"
 
 import { calculateFitness, getHosts } from "@home/lib/main"
-import { getMoneyColor, getRamColor, getSecurityColor } from "./helpers"
 import { CreateWindow, CustomInput, flexRender } from "@home/lib/ui"
 import { UserInterfaceTheme } from "@ns"
+import { getMoneyColor, getRamColor, getSecurityColor } from "./helpers"
 
 export async function main(ns: NS) {
   CreateWindow(ns,

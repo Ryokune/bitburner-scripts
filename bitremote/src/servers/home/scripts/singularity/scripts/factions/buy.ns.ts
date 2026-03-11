@@ -1,4 +1,3 @@
-import { hasAllPrograms } from "@home/lib/main";
 
 export async function main(ns: NS) {
   // Might be a bad metric to not buy augments. Especially at the start of a new bitnode.

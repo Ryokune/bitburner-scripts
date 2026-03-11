@@ -91,7 +91,7 @@ export async function main(ns: NS) {
 
     ns.ui.setTheme(newTheme as UserInterfaceTheme);
 
-    await ns.sleep(1000);
+    await ns.sleep(10000);
   }
 }
 

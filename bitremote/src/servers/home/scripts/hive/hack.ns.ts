@@ -1,4 +1,4 @@
-import PORTS from "@home/lib/ports"
+import PORTS from "@home/lib/ports";
 
 export async function main(ns: NS) {
   const TARGET = ns.args[0] as string

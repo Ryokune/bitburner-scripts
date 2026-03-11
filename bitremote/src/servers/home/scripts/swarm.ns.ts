@@ -1,8 +1,8 @@
 
 import { calculateFitness, getHosts } from "@home/lib/main"
-import { NetscriptPort } from "@ns"
 import PORTS from "@home/lib/ports"
 import { c, table } from "@home/lib/text.ui"
+import { NetscriptPort } from "@ns"
 interface Server {
   hack: number,
   weaken: number,
@@ -14,6 +14,8 @@ const SCRIPTS = [
   "/scripts/hive/weaken.ns.js",
   "/scripts/hive/grow.ns.js",
 ]
+
+//??
 // TODO: Allow for hot reloads.
 // Killing the entire process tree is inefficient.
 // Currently if you kill swarm but not all the proccesses, drainPort WILL be desynced and can go down to negatives and also have unexpected outcomes.
@@ -67,6 +69,9 @@ export async function main(ns: NS) {
     drainPortHandle(weaken_port, "weaken")
     drainPortHandle(grow_port, "grow")
 
+    let T = 0
+    let R = 0
+
     const rows = [
       [
         c.cyan.bold("Server"),
@@ -82,7 +87,10 @@ export async function main(ns: NS) {
         (a[1].hack + a[1].grow + a[1].weaken) -
         (b[1].hack + b[1].grow + b[1].weaken)
       )) {
-
+      T += s.hack + s.grow + s.weaken
+      R += s.hack * ns.getScriptRam(SCRIPTS[0])
+      R += s.weaken * ns.getScriptRam(SCRIPTS[1])
+      R += s.grow * ns.getScriptRam(SCRIPTS[2])
       rows.push([
         name,
         `${s.hack}`,
@@ -92,7 +100,8 @@ export async function main(ns: NS) {
       ])
     }
     ns.print(table(rows))
-
+    ns.print(`ALL THREADS: ${ns.formatNumber(T)}`)
+    ns.print(`TOTAL RAM: ${ns.formatRam(R)}`)
     const HOSTS = getHosts(ns, h => h != "home" && ns.hasRootAccess(h)).sort((a, b) => getAvailableRam(b) - (getAvailableRam(a)))
     const DATA = []
     for (const HOST of HOSTS) {
@@ -151,7 +160,7 @@ export async function main(ns: NS) {
       } else {
         script = SCRIPTS[Math.floor(Math.random() * SCRIPTS.length)]
         targetThreads = Math.floor(Math.random() * 256) + 1
-        ns.toast("fk it.")
+        ns.toast(`fk it. r_tthreads: ${targetThreads}`)
       }
 
       targetThreads = Math.max(0, targetThreads)

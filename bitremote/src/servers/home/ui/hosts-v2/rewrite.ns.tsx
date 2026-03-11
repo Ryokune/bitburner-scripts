@@ -1,24 +1,24 @@
 
 import {
-  useReactTable,
-  getCoreRowModel,
   createColumnHelper,
-  getSortedRowModel,
+  getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table"
 
 import type {
-  SortingState,
-  Row,
   Cell,
   Header,
+  Row,
   SortDirection,
+  SortingState,
 } from "@tanstack/react-table"
 
 import { getHosts } from "@home/lib/main"
-import { getMoneyColor, getRamColor, getSecurityColor } from "./helpers"
 import { CreateWindow, CustomInput, flexRender } from "@home/lib/ui"
 import FileTable from "./components/FileTable"
+import { getMoneyColor, getRamColor, getSecurityColor } from "./helpers"
 
 export async function main(ns: NS) {
   CreateWindow(ns, () => <ServerTable ns={ns} hosts={getHosts(ns)} />, "Hosts", 1200, 500, 0, 0)

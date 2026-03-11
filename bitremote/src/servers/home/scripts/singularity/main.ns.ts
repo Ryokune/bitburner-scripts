@@ -1,4 +1,4 @@
-import { defineFlags, getAvailableRam, getFlagAuto, getFlags, getScripts } from "@home/lib/main"
+import { defineFlags, getAvailableRam, getFlagAuto, getFlags, getScripts } from "@home/lib/main";
 
 const CLOSE_AT = 10;
 

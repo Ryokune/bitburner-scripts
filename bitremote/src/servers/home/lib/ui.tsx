@@ -1,5 +1,5 @@
-import type { FocusEventHandler, ReactNode } from "react";
 import type { ReactNode as NSReactNode } from "@ns";
+import type { FocusEventHandler, ReactNode } from "react";
 
 export function interpolateColor(c1: string, c2: string, t: number) {
   const r = Math.round(parseInt(c1.slice(1, 3), 16) + (parseInt(c2.slice(1, 3), 16) - parseInt(c1.slice(1, 3), 16)) * t)
