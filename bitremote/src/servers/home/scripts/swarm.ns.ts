@@ -32,7 +32,13 @@ export async function main(ns: NS) {
   ns.ramOverride(7.75)
   ns.ui.openTail()
 
+  const PIDS = Array<number>()
   ns.atExit(() => {
+    for (const PID of PIDS) {
+      ns.kill(PID)
+      ns.clearPort(PID)
+    }
+
     ns.ui.closeTail()
   })
 
@@ -42,32 +48,36 @@ export async function main(ns: NS) {
     return ns.getServerMaxRam(host) - ns.getServerUsedRam(host)
   }
 
-  function drainPortHandle(port: NetscriptPort, field: "hack" | "grow" | "weaken") {
-    while (port.peek() !== "NULL PORT DATA") {
-      const [target, threads] = port.read()
+  // function drainPortHandle(port: NetscriptPort, field: "hack" | "grow" | "weaken") {
+  //   while (port.peek() !== "NULL PORT DATA") {
+  //     const [target, threads] = port.read()
+  //     if (H.has(target)) {
+  //       H.get(target)![field] -= threads
+  //     }
+  //   }
+  // }
+  //
+  // const hack_port = ns.getPortHandle(PORTS.HACK_PORT)
+  // const weaken_port = ns.getPortHandle(PORTS.WEAKEN_PORT)
+  // const grow_port = ns.getPortHandle(PORTS.GROW_PORT)
+  //
+  function drainPort(port: number) {
+    const handle = ns.getPortHandle(port)
+    while (handle.peek() !== "NULL PORT DATA") {
+      const [target, type, threads] = handle.read() as [string, "hack" | "grow" | "weaken", number]
       if (H.has(target)) {
-        H.get(target)![field] -= threads
+        H.get(target)![type] -= threads
       }
     }
   }
-
-  const hack_port = ns.getPortHandle(PORTS.HACK_PORT)
-  const weaken_port = ns.getPortHandle(PORTS.WEAKEN_PORT)
-  const grow_port = ns.getPortHandle(PORTS.GROW_PORT)
-
   while (true) {
     ns.clearLog()
-
-    if (!hack_port || !weaken_port || !grow_port) {
-      ns.print(`COULD NOT GET PORTS!`)
-      ns.tprint(`COULD NOT GET PORTS!`)
-      await ns.sleep(5000)
-      continue
+    for (const PID of PIDS) {
+      drainPort(PID)
     }
-
-    drainPortHandle(hack_port, "hack")
-    drainPortHandle(weaken_port, "weaken")
-    drainPortHandle(grow_port, "grow")
+    // drainPortHandle(hack_port, "hack")
+    // drainPortHandle(weaken_port, "weaken")
+    // drainPortHandle(grow_port, "grow")
 
     let T = 0
     let R = 0
@@ -183,6 +193,7 @@ export async function main(ns: NS) {
           temporary: true
         }, target, threadsToRun)
         if (PID == 0) continue;
+        PIDS.push(PID)
         targetThreads -= threadsToRun
         switch (script) {
           case "/scripts/hive/hack.ns.js": {

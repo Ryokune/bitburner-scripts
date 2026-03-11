@@ -5,8 +5,8 @@ export async function main(ns: NS) {
   const PORT = ns.args[2] as number
   await ns.weaken(TARGET)
 
-  const weaken_port = ns.getPortHandle(PORTS.WEAKEN_PORT)
-  while (!weaken_port?.tryWrite([TARGET, ns.args[1]])) {
+  const weaken_port = ns.getPortHandle(ns.pid)
+  while (!weaken_port?.tryWrite([TARGET, "weaken", ns.args[1]])) {
     await ns.sleep(100)
   }
 }

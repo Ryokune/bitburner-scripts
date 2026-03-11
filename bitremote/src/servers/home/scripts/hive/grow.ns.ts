@@ -4,8 +4,8 @@ export async function main(ns: NS) {
   const PORT = ns.args[2]
   await ns.grow(TARGET)
 
-  const grow_port = ns.getPortHandle(PORTS.GROW_PORT)
-  while (!grow_port?.tryWrite([TARGET, ns.args[1]])) {
+  const grow_port = ns.getPortHandle(ns.pid)
+  while (!grow_port?.tryWrite([TARGET, "grow", ns.args[1]])) {
     await ns.sleep(100)
   }
 }
