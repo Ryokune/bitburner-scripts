@@ -1,15 +1,17 @@
+import { FactionName } from "@ns";
+import { getAllAugmentationsFromFaction, getAugmentationData, getCurrentWorkData, getOwnedAugmentationsData } from "../../lib";
 
 export async function main(ns: NS) {
   // Might be a bad metric to not buy augments. Especially at the start of a new bitnode.
   // if (!hasAllPrograms(ns)) return;
 
-  const currentWork = ns.singularity.getCurrentWork();
+  const currentWork = getCurrentWorkData(ns)
   if (currentWork?.type !== "FACTION") return;
 
-  const faction = currentWork.factionName;
+  const faction = currentWork.factionName as FactionName;
 
-  const owned = ns.singularity.getOwnedAugmentations(true);
-  const augs = ns.singularity.getAugmentationsFromFaction(faction);
+  const owned = getOwnedAugmentationsData(ns, true)
+  const augs = getAllAugmentationsFromFaction(ns, faction);
 
   let cheapest = "";
   let cost = Infinity;
@@ -20,13 +22,17 @@ export async function main(ns: NS) {
     // CBA to find a fitness value for when to stop buying neuroflux.
     if (aug === "NeuroFlux Governor") continue;
     if (owned.includes(aug)) continue;
+    const augmentation_data = getAugmentationData(
+      ns, aug
+    )
+    if (!augmentation_data || !augmentation_data.reputation_requirement || !augmentation_data.price) continue
     // if (owned.includes(aug) && aug!=="NeuroFlux Governor") continue;
 
 
-    const repReq = ns.singularity.getAugmentationRepReq(aug);
+    const repReq = augmentation_data.reputation_requirement
     if (ns.singularity.getFactionRep(faction) < repReq) continue;
 
-    const price = ns.singularity.getAugmentationPrice(aug);
+    const price = augmentation_data.price
 
     if (price < cost) {
       cost = price;

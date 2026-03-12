@@ -13,19 +13,41 @@ export async function main(ns: NS) {
   const flags = getFlags(ns, FLAGS)
   if (flags.loop) {
     while (true) {
-      await start(ns, true)
+      await start(ns)
+      ns.run("scripts/nuke.ns.js", {
+        preventDuplicates: true
+      })
     }
   } else {
     await start(ns)
+    ns.ui.closeTail()
+    ns.spawn("scripts/nuke.ns.js", {
+      spawnDelay: 1000,
+      preventDuplicates: true
+    })
   }
 }
 
-async function start(ns: NS, looped = false) {
+async function movePotentialTail(ns: NS, PID: number) {
+  while (ns.isRunning(PID)) {
+    let current_script = ns.self()
+    if (current_script.tailProperties && ns.getScriptLogs(PID).length > 0) {
+      ns.ui.openTail(PID)
+      ns.ui.moveTail(
+        (current_script.tailProperties.x ?? 0),
+        (current_script.tailProperties.y ?? 0) + current_script.tailProperties.height + 10, PID)
+      ns.ui.resizeTail(current_script.tailProperties.width, current_script.tailProperties.height, PID)
+    }
+    await ns.asleep(0)
+  }
+  ns.ui.closeTail(PID)
+}
+
+async function start(ns: NS) {
   ns.clearLog()
 
   for (const script of getScripts(ns, "home", "./scripts")) {
     const name = script.split("/").pop()
-    let current_script = ns.self()
     if (name?.startsWith("_")) continue
 
     const ram_cost = ns.getScriptRam(script)
@@ -46,40 +68,18 @@ async function start(ns: NS, looped = false) {
       ns.print(`\x1b[31mCouldn't run ${script} PID: ${PID}\x1b[0m`)
       continue
     }
-    ns.print(`Running ${script.split("/").slice(-2).join("/")} with PID ${PID}`)
+    ns.print(`${ns.formatRam(ram_cost)} Running ${script.split("/").slice(-2).join("/")} with PID ${PID}`)
+
+    movePotentialTail(ns, PID)
     while (ns.isRunning(PID)) {
-      current_script = ns.self()
-      if (current_script.tailProperties && ns.getScriptLogs(PID).length > 0) {
-        ns.ui.openTail(PID)
-        ns.ui.moveTail(
-          (current_script.tailProperties.x ?? 0),
-          (current_script.tailProperties.y ?? 0) + current_script.tailProperties.height + 10, PID)
-        ns.ui.resizeTail(current_script.tailProperties.width, current_script.tailProperties.height, PID)
-      }
-      if (!current_script.tailProperties)
-        await ns.sleep(500)
-      else
-        await ns.sleep(0)
+      await ns.asleep(500)
     }
-    ns.ui.closeTail(PID)
   }
 
   ns.print("Finished!")
   ns.print(`Closing in ${CLOSE_AT} seconds..`)
 
-  await ns.sleep(CLOSE_AT * 1000)
-
-  if (!looped) {
-    ns.ui.closeTail()
-    ns.spawn("scripts/nuke.ns.js", {
-      spawnDelay: 1000,
-      preventDuplicates: true
-    })
-  }
-  else
-    ns.run("scripts/nuke.ns.js", {
-      preventDuplicates: true
-    })
+  await ns.asleep(CLOSE_AT * 1000)
 }
 
 export function autocomplete(data: AutocompleteData, args: ScriptArg[]): string[] {

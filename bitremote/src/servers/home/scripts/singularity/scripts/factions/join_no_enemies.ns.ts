@@ -1,5 +1,7 @@
+import { getFactionInvitationsData } from "../../lib"
+
 export async function main(ns: NS) {
-  const invitations = ns.singularity.checkFactionInvitations().filter(faction => ns.singularity.getFactionEnemies(faction).length === 0)
+  const invitations = getFactionInvitationsData(ns).filter(faction => ns.singularity.getFactionEnemies(faction).length === 0)
   for (const faction of invitations) {
     if (ns.singularity.joinFaction(faction)) {
       ns.toast(`Joined faction ${faction} (no enemies)`)

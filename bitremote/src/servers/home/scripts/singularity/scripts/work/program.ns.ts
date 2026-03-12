@@ -1,7 +1,8 @@
 import { runScript } from "@home/lib/main"
+import { getCurrentWorkData } from "../../lib"
 
 export async function main(ns: NS) {
-  const work = ns.singularity.getCurrentWork()
+  const work = getCurrentWorkData(ns)
   if (work && (work.type != "CLASS" && work.type != "FACTION" && work.type != "CREATE_PROGRAM")) {
     ns.toast(`Not running program task. Currently has work. ${work.type}`, "warning")
     return
